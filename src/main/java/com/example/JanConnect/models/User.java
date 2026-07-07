@@ -27,12 +27,20 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    @OneToMany(mappedBy = "users")
+    @OneToMany(mappedBy = "appUser",cascade = CascadeType.PERSIST)
     private List<FeedBack> feedBacks;
+
+    @OneToMany(mappedBy = "appUser")
+    private List<Comment> comments;
+
+    @OneToMany(mappedBy = "appUser",cascade = CascadeType.ALL)
+    private List<Message> messages;
 
     private Instant lastFeedBackGiven;
 
-    private Role role;
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private Role role = Role.USER;
 
     //Check if break
     @OneToMany(mappedBy = "user")
@@ -40,5 +48,10 @@ public class User {
 
     @Column(columnDefinition = "TEXT")
     private String password;
+
+    @OneToMany(mappedBy = "user")
+    private List<FeedbackVote> votes;
+
+
 
 }

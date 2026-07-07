@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JanConnect - National Citizen Grievance Portal | Government of India</title>
+  <!-- FontAwesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta name="description" content="JanConnect - India's national platform for citizen grievance registration, AI-powered issue routing, and municipal transparency.">
+  <!-- Premium design system stylesheet -->
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+
+  <!-- Official Government Top Bar -->
+  <div class="gov-top-bar" style="background: #0a2540; color: rgba(255, 255, 255, 0.85); font-size: 0.72rem; font-weight: 600; padding: 0.35rem 2rem; border-bottom: 2px solid #ff9933; display: flex; justify-content: center; width: 100%; font-family: var(--font-body);">
+    <div class="gov-top-content" style="width: 100%; max-width: 1500px; display: flex; justify-content: space-between; align-items: center;">
+      <div class="gov-left" style="display: flex; align-items: center; gap: 0.5rem;">
+        <span class="flag-colors" style="display: inline-flex; flex-direction: column; width: 12px; height: 8px; border: 1px solid rgba(255,255,255,0.2);">
+          <span class="orange" style="background: #ff9933; height: 33.3%;"></span>
+          <span class="white" style="background: #ffffff; height: 33.3%;"></span>
+          <span class="green" style="background: #138808; height: 33.3%;"></span>
+        </span>
+        <span>GOVERNMENT OF INDIA • भारत सरकार</span>
+      </div>
+      <div class="gov-right" style="display: flex; gap: 0.75rem;">
+        <span style="color: rgba(255,255,255,0.4);">|</span>
+        <a href="#" id="lang-en" class="gov-lang" style="color: rgba(255, 255, 255, 0.85); text-decoration: none; transition: color 0.2s;">English</a>
+        <span style="color: rgba(255,255,255,0.4);">|</span>
+        <a href="#" id="lang-hi" class="gov-lang" style="color: rgba(255, 255, 255, 0.85); text-decoration: none; transition: color 0.2s; font-family: sans-serif;">हिन्दी</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner Overlay -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Toast Alert Notifications -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- App Wrapper -->
+  <div class="app-container">
+    
+    <!-- Persistent Top Horizontal Navigation Sticky Header -->
+    <header id="sidebar-nav" class="sticky-header" style="display: none;">
+      <div class="header-content">
+        <div class="brand">
+          <div class="emblem-wrapper" style="background: var(--secondary-gradient); padding: 0.5rem; border-radius: 12px; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; box-shadow: 0 4px 10px rgba(249, 115, 22, 0.2);">
+            <i class="fa-solid fa-building-shield" style="color: #ffffff; font-size: 1.35rem;"></i>
+          </div>
+          <div class="brand-text-wrapper" style="display: flex; flex-direction: column; font-family: var(--font-display);">
+            <span class="brand-title" style="font-size: 1.5rem; font-weight: 800; color: #0a2540; letter-spacing: -0.02em; line-height: 1.1;">JanConnect</span>
+            <span class="brand-subtitle" style="font-size: 0.68rem; font-weight: 700; color: #ea580c; text-transform: uppercase; letter-spacing: 0.08em; line-height: 1.1; margin-top: 0.15rem;">National Grievance Portal</span>
+          </div>
+        </div>
+
+        <nav class="sidebar-links">
+          <a href="#" class="sidebar-link active" data-view="dashboard">
+            <i class="fa-solid fa-gauge-high"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="#" class="sidebar-link" data-view="leaderboard">
+            <i class="fa-solid fa-trophy"></i>
+            <span>Leaderboard</span>
+          </a>
+          <a href="#" class="sidebar-link" data-view="search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>Search Portal</span>
+          </a>
+          <a href="#" class="sidebar-link admin-only" data-view="admin-dashboard" style="display: none;">
+            <i class="fa-solid fa-user-shield"></i>
+            <span>Admin Panel</span>
+          </a>
+          <a href="#" class="sidebar-link admin-only" data-view="admin-create" style="display: none;">
+            <i class="fa-solid fa-user-gear"></i>
+            <span>Admin Management</span>
+          </a>
+        </nav>
+
+        <div class="header-right">
+          <!-- Global Search Bar -->
+          <div class="search-container global-search" id="global-search-container" style="max-width: 280px; width: 100%; min-width: 120px; margin-bottom: 0; flex-shrink: 1;">
+            <div class="search-input-wrapper">
+              <i id="global-search-btn" class="fa-solid fa-magnifying-glass search-icon" style="font-size: 0.85rem; left: 0.85rem; cursor: pointer; pointer-events: auto;"></i>
+              <input type="text" id="global-search-input" class="search-input" placeholder="Quick search..." autocomplete="off" style="padding: 0.5rem 4rem 0.5rem 2.25rem; font-size: 0.85rem; border-radius: 8px;">
+              <kbd class="search-kbd" id="global-search-kbd-hint" style="right: 0.5rem; font-size: 0.65rem; padding: 0.15rem 0.4rem;">Enter ↵</kbd>
+            </div>
+            <!-- Autocomplete Suggestions Dropdown -->
+            <div id="global-search-suggestions" class="search-suggestions" style="border-radius: 8px; margin-top: 6px;">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <div id="header-user" style="display: none; align-items: center; gap: 0.6rem; flex-shrink: 0;">
+            <!-- Notification Icon -->
+            <div id="message-notification-wrapper" style="position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); transition: all 0.2s;">
+              <i class="fa-regular fa-bell" style="font-size: 1.1rem; color: var(--text-secondary);" id="message-notification-icon"></i>
+              <span id="message-unread-badge" style="display: none; position: absolute; top: -4px; right: -4px; background: #ef4444; color: #fff; font-size: 0.62rem; font-weight: 700; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px rgba(17, 25, 40, 0.9);">0</span>
+            </div>
+            
+            <div class="user-info-wrapper" id="header-profile-trigger" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: opacity 0.2s; max-width: 140px; min-width: 0;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
+              <div id="header-avatar" class="user-avatar" style="width: 32px; height: 32px; font-size: 0.9rem; margin: 0; flex-shrink: 0;">U</div>
+              <span id="header-username" style="font-weight: 600; font-size: 0.92rem; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 90px;"></span>
+            </div>
+            <button id="btn-header-logout" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; width: auto; display: flex; gap: 0.35rem; margin: 0;">
+              <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Grid with View Sections and Right Sidebar -->
+    <div class="main-layout">
+      <!-- View Containers -->
+      <main class="content-container">
+        
+        <!-- 1. Authentication View -->
+        <section id="auth-section" class="view-section active">
+          <div class="auth-grid">
+            
+            <!-- Branding and information -->
+            <div class="auth-info">
+              <h1>National Citizen Grievance Portal</h1>
+              <p>An official digital platform of the Government of India for registering public grievances, tracking response progress, and utilizing AI for optimized municipal service routing.</p>
+              
+              <div class="feature-list">
+                <div class="feature-item">
+                  <i class="fa-solid fa-robot"></i>
+                  <div>
+                    <h4>AI-Powered Categorization</h4>
+                    <p>Automatic priority score allocation, category classification, and native translation support.</p>
+                  </div>
+                </div>
+                <div class="feature-item">
+                  <i class="fa-solid fa-route"></i>
+                  <div>
+                    <h4>Direct Municipal Routing</h4>
+                    <p>Ensures complaints are instantly dispatched to the responsible local ward or municipal officer.</p>
+                  </div>
+                </div>
+                <div class="feature-item">
+                  <i class="fa-solid fa-fingerprint"></i>
+                  <div>
+                    <h4>Secure Identity & Transparency</h4>
+                    <p>Single sign-on with Google OAuth2 or secure local credentials with public transparency dashboards.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Credentials forms -->
+            <div class="glass-card auth-card">
+              
+              <!-- Login Form State -->
+              <div id="login-state" class="auth-form-state">
+                <div class="auth-card-header">
+                  <h2>Welcome Back</h2>
+                  <p>Don't have an account? <a href="#" id="link-to-register">Register here</a></p>
+                </div>
+                
+                <form id="login-form">
+                  <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <div class="input-wrapper">
+                      <input type="text" id="login-username" class="form-input" placeholder="Enter your username" required autocomplete="username">
+                      <i class="fa-solid fa-user"></i>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <div class="input-wrapper">
+                      <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+                      <i class="fa-solid fa-lock"></i>
+                    </div>
+                  </div>
+                  
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                  </button>
+                </form>
+              </div>
+
+              <!-- Register Form State -->
+              <div id="register-state" class="auth-form-state" style="display: none;">
+                <div class="auth-card-header">
+                  <h2>Create Account</h2>
+                  <p>Already have an account? <a href="#" id="link-to-login">Sign in here</a></p>
+                </div>
+                
+                <form id="register-form">
+                  <div class="form-group">
+                    <label for="register-username">Username</label>
+                    <div class="input-wrapper">
+                      <input type="text" id="register-username" class="form-input" placeholder="Create username" required autocomplete="username">
+                      <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <div class="input-wrapper">
+                      <input type="password" id="register-password" class="form-input" placeholder="Min. 8 characters" required autocomplete="new-password">
+                      <i class="fa-solid fa-lock"></i>
+                    </div>
+                  </div>
+                  
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-user-check"></i> Register Account
+                  </button>
+                </form>
+              </div>
+
+              <div class="divider">or continue with</div>
+
+              <button id="btn-google-login" class="btn btn-google">
+                <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="Google">
+                Sign in with Google
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Dashboard View -->
+        <section id="dashboard-section" class="view-section">
+          <div class="dashboard-grid-layout" style="display: flex; flex-direction: column; gap: 2rem;">
+            
+            <!-- Welcome Banner Card -->
+            <div class="glass-card welcome-banner" style="background: linear-gradient(135deg, rgba(10, 37, 64, 0.03) 0%, rgba(234, 88, 12, 0.03) 100%); border-left: 5px solid #0a2540; padding: 1.75rem; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 250px;">
+                <h2 style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; color: #0a2540; margin-bottom: 0.25rem;">Welcome to JanConnect Portal</h2>
+                <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5;">Register public grievances, track routing progress to municipal departments, and collaborate with your local community. Powered by real-time citizen upvotes.</p>
+              </div>
+              <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <span id="session-countdown-badge" class="role-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); font-weight: 700; padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.8rem; margin: 0;">
+                  Expires: <span id="session-countdown">10:00</span>
+                </span>
+                <button id="btn-refresh-token" class="btn btn-secondary" style="width: auto; padding: 0.45rem 0.85rem; font-size: 0.8rem; margin: 0;">
+                  <i class="fa-solid fa-arrows-spin"></i> Refresh
+                </button>
+                <button id="btn-dashboard-logout" class="btn btn-secondary" style="width: auto; padding: 0.45rem 0.85rem; font-size: 0.8rem; margin: 0; background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.12);">
+                  <i class="fa-solid fa-power-off"></i> Logout
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick Statistics Grid Row -->
+            <div class="dashboard-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+              <!-- Card 1: My Submissions -->
+              <div class="glass-card stat-card" style="padding: 1.25rem; display: flex; align-items: center; gap: 1rem; border-left: 4px solid #3b82f6;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(59, 130, 246, 0.08); display: flex; align-items: center; justify-content: center; color: #3b82f6; font-size: 1.35rem;">
+                  <i class="fa-solid fa-file-invoice"></i>
+                </div>
+                <div>
+                  <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);">My Submissions</div>
+                  <div id="stat-my-submissions" style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin-top: 0.15rem; font-family: var(--font-display);">0</div>
+                </div>
+              </div>
+
+              <!-- Card 2: National Grievances -->
+              <div class="glass-card stat-card" style="padding: 1.25rem; display: flex; align-items: center; gap: 1rem; border-left: 4px solid #8b5cf6;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(139, 92, 246, 0.08); display: flex; align-items: center; justify-content: center; color: #8b5cf6; font-size: 1.35rem;">
+                  <i class="fa-solid fa-globe"></i>
+                </div>
+                <div>
+                  <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);">National Grievances</div>
+                  <div id="stat-national-grievances" style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin-top: 0.15rem; font-family: var(--font-display);">0</div>
+                </div>
+              </div>
+
+              <!-- Card 3: Pending Review -->
+              <div class="glass-card stat-card" style="padding: 1.25rem; display: flex; align-items: center; gap: 1rem; border-left: 4px solid #f59e0b;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(245, 158, 11, 0.08); display: flex; align-items: center; justify-content: center; color: #f59e0b; font-size: 1.35rem;">
+                  <i class="fa-solid fa-hourglass-half"></i>
+                </div>
+                <div>
+                  <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);">Pending Review</div>
+                  <div id="stat-pending-review" style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin-top: 0.15rem; font-family: var(--font-display);">0</div>
+                </div>
+              </div>
+
+              <!-- Card 4: Cases Resolved -->
+              <div class="glass-card stat-card" style="padding: 1.25rem; display: flex; align-items: center; gap: 1rem; border-left: 4px solid #10b981;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16, 185, 129, 0.08); display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 1.35rem;">
+                  <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                  <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);">Cases Resolved</div>
+                  <div id="stat-cases-resolved" style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin-top: 0.15rem; font-family: var(--font-display);">0</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Two-Column Layout Grid -->
+            <div class="dashboard-columns" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 2rem; align-items: start;">
+              
+              <!-- Left Column: Submit Feedback Card -->
+              <div class="glass-card" style="padding: 2rem;">
+                <h3 style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                  <i class="fa-solid fa-comments" style="color: #ea580c;"></i>Submit Citizen Feedback
+                </h3>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                  File a request, complaint, or feedback about public amenities. Attach photos, documents, or record a voice message.
+                </p>
+                
+                <form id="feedback-form">
+                  <div class="form-group">
+                    <label for="feedback-title">Title</label>
+                    <div class="input-wrapper">
+                      <input type="text" id="feedback-title" class="form-input" placeholder="e.g. Broken Water Pipe near Main Road" required>
+                      <i class="fa-solid fa-heading"></i>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="feedback-description">Description</label>
+                    <div class="input-wrapper">
+                      <textarea id="feedback-description" class="form-input" rows="4" placeholder="Describe the issue in detail..." style="padding-left: 2.75rem; height: auto;" required></textarea>
+                      <i class="fa-solid fa-align-left" style="top: 1.5rem;"></i>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="feedback-visibility">Visibility</label>
+                    <div class="input-wrapper">
+                      <select id="feedback-visibility" class="form-input select-input" required style="appearance: none; -webkit-appearance: none;">
+                        <option value="PUBLIC">Public (Visible to everyone)</option>
+                        <option value="ANONYMOUS">Anonymous (Hidden user identity)</option>
+                        <option value="PRIVATE">Private (Only visible to you and officials)</option>
+                      </select>
+                      <i class="fa-solid fa-eye"></i>
+                    </div>
+                  </div>
+
+                  <div class="location-section" style="border: 1px solid var(--card-border); padding: 1.5rem; border-radius: 12px; background: rgba(255,255,255,0.01); margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                      <h4 style="font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; margin: 0; color: var(--text-primary);">
+                        <i class="fa-solid fa-map-location-dot" style="color: #06b6d4; margin-right: 0.5rem;"></i>Location Details
+                      </h4>
+                      <button type="button" id="btn-detect-location" class="btn btn-secondary" style="width: auto; padding: 0.4rem 0.75rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.35rem;">
+                        <i class="fa-solid fa-location-crosshairs" style="color: #06b6d4;"></i> Detect Location
+                      </button>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="feedback-pincode">PIN Code Lookup (Optional)</label>
+                      <div class="input-wrapper" style="display: flex; gap: 0.5rem;">
+                        <div style="position: relative; flex: 1;">
+                          <input type="text" id="feedback-pincode" class="form-input" placeholder="Enter 6-digit PIN Code" maxlength="6" style="width: 100%;">
+                          <i class="fa-solid fa-map-pin"></i>
+                        </div>
+                        <button type="button" id="btn-pincode-lookup" class="btn btn-secondary" style="width: auto; padding: 0.75rem 1.25rem;">
+                          Lookup
+                        </button>
+                      </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                      <div class="form-group" style="margin-bottom: 0;">
+                        <label for="feedback-state">State</label>
+                        <div class="input-wrapper">
+                          <select id="feedback-state" class="form-input select-input" required style="appearance: none; -webkit-appearance: none;">
+                            <option value="">Select State</option>
+                          </select>
+                          <i class="fa-solid fa-map"></i>
+                        </div>
+                      </div>
+
+                      <div class="form-group" style="margin-bottom: 0;">
+                        <label for="feedback-district">District</label>
+                        <div class="input-wrapper">
+                          <select id="feedback-district" class="form-input select-input" required style="appearance: none; -webkit-appearance: none;">
+                            <option value="">Select District</option>
+                          </select>
+                          <i class="fa-solid fa-tree-city"></i>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                      <div class="form-group" style="margin-bottom: 0;">
+                        <label for="feedback-village">Village / Locality</label>
+                        <div class="input-wrapper">
+                          <!-- Dropdown version (default) -->
+                          <select id="feedback-village-select" class="form-input select-input" style="appearance: none; -webkit-appearance: none;">
+                            <option value="">Select Village/Locality</option>
+                          </select>
+                          <!-- Text input version (toggled) -->
+                          <input type="text" id="feedback-village-text" class="form-input" placeholder="Enter Village Name" style="display: none;">
+                          <i class="fa-solid fa-house-chimney"></i>
+                        </div>
+                        <div style="margin-top: 0.35rem; display: flex; align-items: center; gap: 0.35rem;">
+                          <input type="checkbox" id="feedback-village-toggle" style="cursor: pointer;">
+                          <label for="feedback-village-toggle" style="font-size: 0.75rem; color: var(--text-muted); cursor: pointer; user-select: none;">Type manually</label>
+                        </div>
+                      </div>
+
+                      <div class="form-group" style="margin-bottom: 0;">
+                        <label for="feedback-ward">Ward / Block</label>
+                        <div class="input-wrapper">
+                          <!-- Dropdown version (default) -->
+                          <select id="feedback-ward-select" class="form-input select-input" style="appearance: none; -webkit-appearance: none;">
+                            <option value="">Select Ward/Block</option>
+                          </select>
+                          <!-- Text input version (toggled) -->
+                          <input type="text" id="feedback-ward-text" class="form-input" placeholder="Enter Ward Name" style="display: none;">
+                          <i class="fa-solid fa-border-all"></i>
+                        </div>
+                        <div style="margin-top: 0.35rem; display: flex; align-items: center; gap: 0.35rem;">
+                          <input type="checkbox" id="feedback-ward-toggle" style="cursor: pointer;">
+                          <label for="feedback-ward-toggle" style="font-size: 0.75rem; color: var(--text-muted); cursor: pointer; user-select: none;">Type manually</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="attachments-section" style="border: 1px solid var(--card-border); padding: 1.5rem; border-radius: 12px; background: rgba(255,255,255,0.01); margin-bottom: 1.5rem;">
+                    <h4 style="font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">
+                      <i class="fa-solid fa-paperclip" style="color: #8b5cf6; margin-right: 0.5rem;"></i>Attachments & Evidence
+                    </h4>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                      <!-- Image Selection -->
+                      <div>
+                        <input type="file" id="feedback-images" accept="image/*" multiple style="display: none;">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('feedback-images').click()" style="padding: 0.65rem 1rem; font-size: 0.9rem;">
+                          <i class="fa-regular fa-image" style="color: #3b82f6;"></i> Add Photos
+                        </button>
+                      </div>
+                      <!-- File Selection -->
+                      <div>
+                        <input type="file" id="feedback-files" multiple style="display: none;">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('feedback-files').click()" style="padding: 0.65rem 1rem; font-size: 0.9rem;">
+                          <i class="fa-regular fa-file-pdf" style="color: #ef4444;"></i> Add Documents
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Voice Recording Panel -->
+                    <div class="voice-recorder-panel" style="border: 1px dashed var(--card-border); padding: 1rem; border-radius: 10px; background: rgba(0,0,0,0.02); margin-bottom: 1rem;">
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); display: flex; align-items: center; gap: 0.35rem;">
+                          <i class="fa-solid fa-microphone-lines" style="color: #10b981;"></i> Voice Message Recorder
+                        </span>
+                        <span id="recording-timer" style="font-size: 0.85rem; font-weight: 600; color: #f43f5e; display: none;">
+                          <span class="recording-dot"></span> <span id="record-time-display">00:00</span>
+                        </span>
+                      </div>
+
+                      <div style="display: flex; gap: 0.5rem;">
+                        <button type="button" id="btn-record-start" class="btn btn-secondary" style="flex: 1; padding: 0.5rem 1rem; font-size: 0.85rem; gap: 0.35rem;">
+                          <i class="fa-solid fa-circle" style="color: #ef4444; font-size: 0.75rem;"></i> Record
+                        </button>
+                        <button type="button" id="btn-record-stop" class="btn btn-secondary" disabled style="flex: 1; padding: 0.5rem 1rem; font-size: 0.85rem; gap: 0.35rem;">
+                          <i class="fa-solid fa-square" style="color: var(--text-muted); font-size: 0.75rem;"></i> Stop
+                        </button>
+                      </div>
+
+                      <!-- Audio Preview Container -->
+                      <div id="voice-preview-container" style="display: none; margin-top: 0.75rem; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.02); padding: 0.5rem; border-radius: 8px; border: 1px solid var(--card-border);">
+                        <audio id="voice-audio-element" controls style="flex: 1; height: 32px;"></audio>
+                        <button type="button" id="btn-voice-delete" class="btn btn-secondary" style="width: auto; padding: 0.4rem 0.6rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">
+                          <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Attachments List/Grid Preview -->
+                    <div id="feedback-attachments-preview" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                      <!-- Dynamically populated files -->
+                    </div>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-size: 1rem;">
+                    <i class="fa-solid fa-paper-plane"></i> Submit Citizen Feedback
+                  </button>
+                </form>
+              </div>
+
+              <!-- Right Column: Recent Submissions & Collapsible JWT tools -->
+              <div style="display: flex; flex-direction: column; gap: 2rem;">
+                
+                <!-- Recent Submissions Card -->
+                <div class="glass-card" style="padding: 1.5rem;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.75rem;">
+                    <h3 style="font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                      <i class="fa-solid fa-clock-rotate-left" style="color: #6366f1;"></i>Recent Submissions
+                    </h3>
+                    <a href="#" id="link-dashboard-view-profile" style="font-size: 0.8rem; font-weight: 600; color: #6366f1; text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">
+                      View All <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                  </div>
+                  <div id="dashboard-recent-submissions-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                    <!-- Loaded dynamically -->
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Loading submissions...</span>
+                  </div>
+                </div>
+
+                <!-- Collapsible Developer Tools Card -->
+                <div class="glass-card developer-tools-card" style="padding: 1.5rem; border: 1px solid rgba(99, 102, 241, 0.15);">
+                  <div id="developer-tools-toggle" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+                    <h3 style="font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                      <i class="fa-solid fa-code" style="color: #8b5cf6;"></i>Developer JWT Tools
+                    </h3>
+                    <i id="dev-tools-chevron" class="fa-solid fa-chevron-down" style="color: var(--text-muted); font-size: 0.9rem; transition: transform 0.3s ease;"></i>
+                  </div>
+                  
+                  <div id="developer-tools-content" style="display: none; margin-top: 1.25rem; flex-direction: column; gap: 1rem; border-top: 1px solid var(--card-border); padding-top: 1.25rem;">
+                    <div class="code-header">
+                      <span class="code-title" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);"><i class="fa-solid fa-key" style="margin-right: 0.35rem;"></i>Active JSON Web Token (JWT)</span>
+                      <button id="btn-copy-token" class="btn btn-secondary" style="width: auto; padding: 0.25rem 0.6rem; font-size: 0.75rem; display: flex; gap: 0.25rem; margin: 0;">
+                        <i class="fa-solid fa-copy"></i> Copy Token
+                      </button>
+                    </div>
+                    <div id="jwt-raw" class="code-container" style="word-break: break-all; font-size: 0.78rem; max-height: 120px; user-select: all; margin-bottom: 0.5rem;">
+                      No JWT available. Log in to retrieve a token.
+                    </div>
+
+                    <div class="code-header">
+                      <span class="code-title" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);"><i class="fa-solid fa-magnifying-glass-chart" style="margin-right: 0.35rem;"></i>Decoded JWT Claims</span>
+                    </div>
+                    <pre id="jwt-decoded" class="code-container" style="color: #22c55e; font-size: 0.78rem; max-height: 150px; margin: 0;">
+{
+  "status": "Logged Out"
+}
+                    </pre>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+        <!-- 3. Profile View (RESTructured Page) -->
+        <section id="profile-section" class="view-section">
+          <div class="profile-grid" style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
+            <!-- Profile Sidebar (User details, Security settings, OAuth settings) -->
+            <div class="profile-sidebar" style="display: flex; flex-direction: column; gap: 2rem;">
+              <!-- Profile Card -->
+              <div class="glass-card">
+                <div class="user-profile-header">
+                  <div id="profile-avatar" class="user-avatar">U</div>
+                  <div class="user-meta">
+                    <h3 id="profile-username">User Profile</h3>
+                    <span id="profile-role" class="role-badge">USER</span>
+                  </div>
+                </div>
+                
+                <div class="info-item">
+                  <span class="info-label">Email Address</span>
+                  <span id="info-email" class="info-value">Not Linked</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Active Connection</span>
+                  <span id="info-status" class="info-value status-active">
+                    <span class="status-indicator status-active"><span class="status-dot"></span>Active</span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- OAuth2 Connections Status -->
+              <div class="glass-card">
+                <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;">Linked Identities</h3>
+                
+                <div class="provider-badge">
+                  <div class="provider-info">
+                    <div class="provider-icon provider-google">
+                      <i class="fa-brands fa-google"></i>
+                    </div>
+                    <div>
+                      <h4 style="font-size: 0.95rem; font-weight: 600;">Google Account</h4>
+                      <p style="font-size: 0.8rem; color: var(--text-muted);">Sign-in integration</p>
+                    </div>
+                  </div>
+                  <span id="link-status-google" class="status-indicator status-inactive">
+                    <span class="status-dot"></span>Disconnected
+                  </span>
+                </div>
+
+                <div class="provider-badge">
+                  <div class="provider-info">
+                    <div class="provider-icon provider-youtube">
+                      <i class="fa-brands fa-youtube"></i>
+                    </div>
+                    <div>
+                      <h4 style="font-size: 0.95rem; font-weight: 600;">YouTube Services</h4>
+                      <p style="font-size: 0.8rem; color: var(--text-muted);">Analytics & Read access</p>
+                    </div>
+                  </div>
+                  <span id="link-status-youtube" class="status-indicator status-inactive">
+                    <span class="status-dot"></span>Disconnected
+                  </span>
+                </div>
+
+                <button id="btn-link-oauth" class="btn btn-secondary" style="font-size: 0.9rem; padding: 0.65rem; margin-top: 0.5rem;">
+                  <i class="fa-solid fa-link"></i> Link Google/YouTube
+                </button>
+              </div>
+
+              <!-- Change Password Card -->
+              <div class="glass-card">
+                <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;">Security Settings</h3>
+                <form id="change-password-form">
+                  <div class="form-group">
+                    <label for="new-password">New Password</label>
+                    <div class="input-wrapper">
+                      <input type="password" id="new-password" class="form-input" placeholder="Min. 8 characters" required autocomplete="new-password">
+                      <i class="fa-solid fa-key"></i>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary" style="font-size: 0.9rem; padding: 0.65rem;">
+                    <i class="fa-solid fa-lock-open"></i> Update Password
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Profile Main Content (User's Submitted Feedbacks) -->
+            <div class="profile-main-content" style="display: flex; flex-direction: column; gap: 1.5rem;">
+              
+              <!-- Personal Statistics Grid -->
+              <div class="profile-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem;">
+                <!-- Total Submissions -->
+                <div class="glass-card" style="padding: 1.25rem; display: flex; align-items: center; gap: 0.75rem; border-left: 3px solid #3b82f6;">
+                  <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(59, 130, 246, 0.08); display: flex; align-items: center; justify-content: center; color: #3b82f6; font-size: 1.15rem;">
+                    <i class="fa-solid fa-file-invoice"></i>
+                  </div>
+                  <div>
+                    <div style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Total Filed</div>
+                    <div id="profile-stat-total" style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary); margin-top: 0.1rem; font-family: var(--font-display);">0</div>
+                  </div>
+                </div>
+
+                <!-- Upvotes Received -->
+                <div class="glass-card" style="padding: 1.25rem; display: flex; align-items: center; gap: 0.75rem; border-left: 3px solid #f59e0b;">
+                  <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(245, 158, 11, 0.08); display: flex; align-items: center; justify-content: center; color: #f59e0b; font-size: 1.15rem;">
+                    <i class="fa-solid fa-circle-arrow-up"></i>
+                  </div>
+                  <div>
+                    <div style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Upvotes Recv</div>
+                    <div id="profile-stat-upvotes" style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary); margin-top: 0.1rem; font-family: var(--font-display);">0</div>
+                  </div>
+                </div>
+
+                <!-- Cases Resolved -->
+                <div class="glass-card" style="padding: 1.25rem; display: flex; align-items: center; gap: 0.75rem; border-left: 3px solid #10b981;">
+                  <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(16, 185, 129, 0.08); display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 1.15rem;">
+                    <i class="fa-solid fa-circle-check"></i>
+                  </div>
+                  <div>
+                    <div style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">Resolved</div>
+                    <div id="profile-stat-resolved" style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary); margin-top: 0.1rem; font-family: var(--font-display);">0</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submissions Card -->
+              <div class="glass-card" style="padding: 2rem;">
+                <h3 style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                  <i class="fa-solid fa-box-archive" style="color: #ea580c;"></i>My Submissions
+                </h3>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+                  Track and view the details of all citizen feedback and complaints you have submitted.
+                </p>
+
+                <div id="user-feedbacks-list" class="user-feedbacks-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                  <!-- Dynamic user feedbacks list -->
+                  <span style="font-size: 0.9rem; color: var(--text-muted);">No submissions yet.</span>
+                </div>
+
+                <!-- User submissions pagination -->
+                <div id="user-feedbacks-pagination" class="search-pagination" style="display: none; margin-top: 1.5rem; border-top: 1px solid var(--card-border); padding-top: 1rem;">
+                  <button id="btn-user-prev" class="btn btn-secondary" style="width: auto; padding: 0.45rem 1rem; font-size: 0.85rem; margin: 0;">
+                    <i class="fa-solid fa-chevron-left"></i> Previous
+                  </button>
+                  <span id="user-page-info" style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Page 1 of 1</span>
+                  <button id="btn-user-next" class="btn btn-secondary" style="width: auto; padding: 0.45rem 1rem; font-size: 0.85rem; margin: 0;">
+                    Next <i class="fa-solid fa-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. Standalone Leaderboard View -->
+        <section id="leaderboard-section" class="view-section">
+          <div class="glass-card" style="max-width: 900px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+              <div>
+                <h3 style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                  <i class="fa-solid fa-trophy" style="color: #fbbf24;"></i>Feedback Leaderboard
+                </h3>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                  Top community issues sorted by citizen votes. Click on an issue to view its details.
+                </p>
+              </div>
+              <button id="btn-refresh-leaderboard" class="btn btn-secondary" style="width: auto; padding: 0.5rem 1rem; font-size: 0.85rem; display: flex; gap: 0.35rem;">
+                <i class="fa-solid fa-arrows-rotate"></i> Refresh
+              </button>
+            </div>
+            <div id="leaderboard-list" class="leaderboard-list">
+              <!-- Dynamically populated leaderboard items -->
+              <span style="font-size: 0.9rem; color: var(--text-muted);">Loading leaderboard...</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. Standalone Search Portal View -->
+        <section id="search-section" class="view-section">
+          <div class="search-page-container" style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <!-- Large Search Box Card -->
+            <div class="glass-card" style="padding: 2rem;">
+              <h2 style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.5rem; text-align: center;">
+                Search National Grievances
+              </h2>
+              <p style="font-size: 0.95rem; color: var(--text-secondary); text-align: center; margin-bottom: 1.5rem;">
+                Look up complaints by title to see active community feedback, upvote issues, and read AI routing details.
+              </p>
+
+              <!-- Centralized Search input -->
+              <div class="search-container" id="search-container" style="width: 100%; max-width: 600px; margin: 0 auto;">
+                <div class="search-input-wrapper">
+                  <i class="fa-solid fa-magnifying-glass search-icon" style="font-size: 1.1rem; left: 1.25rem;"></i>
+                  <input type="text" id="search-input" class="search-input" placeholder="Enter keywords to search..." autocomplete="off" style="padding: 1rem 5rem 1rem 3.25rem; font-size: 1.05rem; border-radius: 12px;">
+                  <kbd class="search-kbd" id="search-kbd-hint" style="right: 1.25rem; font-size: 0.75rem; padding: 0.3rem 0.6rem;">Enter ↵</kbd>
+                </div>
+                <!-- Autocomplete Suggestions Dropdown -->
+                <div id="search-suggestions" class="search-suggestions" style="border-radius: 12px; margin-top: 8px;">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Search Results Display Card -->
+            <div id="search-results-wrapper" class="glass-card" style="padding: 1.5rem; display: none;">
+              <h3 id="search-results-query" style="font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-primary);">
+                Search Results
+              </h3>
+              <!-- Results List -->
+              <div id="search-results-list" class="search-results-list">
+                <span style="font-size: 0.9rem; color: var(--text-muted);">Enter a search query to view results.</span>
+              </div>
+
+              <!-- Pagination -->
+              <div id="search-results-pagination" class="search-pagination" style="display: none; margin-top: 1.5rem; border-top: 1px solid var(--card-border); padding-top: 1rem;">
+                <button id="btn-search-prev" class="btn btn-secondary" style="width: auto; padding: 0.45rem 1rem; font-size: 0.85rem; margin: 0;">
+                  <i class="fa-solid fa-chevron-left"></i> Previous
+                </button>
+                <span id="search-page-info" style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Page 1 of 1</span>
+                <button id="btn-search-next" class="btn btn-secondary" style="width: auto; padding: 0.45rem 1rem; font-size: 0.85rem; margin: 0;">
+                  Next <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- 6. Feedback Detail View (includes Comments at the bottom) -->
+        <section id="feedback-detail-section" class="view-section">
+          <div class="detail-container" style="max-width: 1200px; margin: 0 auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <!-- Header Bar -->
+            <div class="detail-top-bar" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <button id="btn-detail-back" class="btn btn-secondary" style="width: auto; padding: 0.5rem 1rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem; margin: 0;">
+                <i class="fa-solid fa-arrow-left"></i> Back
+              </button>
+              <button id="btn-detail-download-report" class="btn btn-secondary" style="width: auto; padding: 0.5rem 1rem; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem; margin: 0;">
+                <i class="fa-solid fa-download"></i> Download Report
+              </button>
+            </div>
+
+            <!-- Success Banner / Status Overview Card -->
+            <div class="status-banner-card glass-card" style="padding: 1.5rem; border-left: 4px solid #10b981; display: flex; flex-direction: column; gap: 1.25rem;">
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(16, 185, 129, 0.3);">
+                  <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 1.5rem;"></i>
+                </div>
+                <div>
+                  <h2 style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; color: #10b981; margin: 0;">Complaint Submitted Successfully!</h2>
+                  <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0.15rem 0 0 0;">Your complaint has been registered and is being processed.</p>
+                </div>
+              </div>
+              
+              <!-- Row with 4 small panels -->
+              <div class="status-panel-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 0.5rem; border-top: 1px solid var(--card-border); padding-top: 1.25rem;">
+                <div class="status-panel" style="display: flex; align-items: center; gap: 0.75rem;">
+                  <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; border: 1px solid var(--card-border);"><i class="fa-solid fa-hashtag" style="color: var(--text-secondary);"></i></div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Complaint ID</span>
+                    <span id="detail-complaint-id" style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary);">#b9c64235...</span>
+                  </div>
+                </div>
+                <div class="status-panel" style="display: flex; align-items: center; gap: 0.75rem;">
+                  <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; border: 1px solid var(--card-border);"><i class="fa-solid fa-calendar-days" style="color: #3b82f6;"></i></div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Submitted On</span>
+                    <span id="detail-submitted-on" style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary);">03 July, 2026</span>
+                  </div>
+                </div>
+                <div class="status-panel" style="display: flex; align-items: center; gap: 0.75rem;">
+                  <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; border: 1px solid var(--card-border);"><i class="fa-solid fa-robot" style="color: #a855f7;"></i></div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">AI Status</span>
+                    <span style="font-size: 0.9rem; font-weight: 600; color: #10b981; display: flex; align-items: center; gap: 0.25rem;"><i class="fa-solid fa-circle-check" style="font-size: 0.75rem;"></i> Completed</span>
+                  </div>
+                </div>
+                <div class="status-panel" style="display: flex; align-items: center; gap: 0.75rem;">
+                  <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; border: 1px solid var(--card-border);"><i class="fa-solid fa-building-flag" style="color: #fbbf24;"></i></div>
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Government Status</span>
+                    <span id="detail-status-badge-panel" style="font-size: 0.9rem; font-weight: 600; color: #fbbf24;">Under Review</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Title Block -->
+            <div class="detail-title-card glass-card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;">
+              <div style="width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.25);">
+                <i class="fa-solid fa-file-invoice" style="color: #ffffff; font-size: 1.75rem;"></i>
+              </div>
+              <div style="flex: 1; min-width: 250px;">
+                <h1 id="detail-title" style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; color: var(--text-primary); margin: 0; line-height: 1.2;">Complaint Title</h1>
+                <p id="detail-subtitle-address" style="font-size: 0.95rem; color: var(--text-secondary); margin: 0.35rem 0 0 0; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                  <i class="fa-solid fa-location-dot" style="color: #f43f5e;"></i> Location Details
+                </p>
+              </div>
+              <div style="display: flex; gap: 0.75rem; align-items: center; margin-left: auto;">
+                <div id="admin-status-control" class="admin-only" style="display: none; align-items: center; gap: 0.5rem; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 0.4rem 0.75rem; height: 100%;">
+                  <i class="fa-solid fa-user-shield" style="color: #f59e0b;"></i>
+                  <select id="admin-status-select" class="form-input" style="padding: 0.2rem 0.5rem; height: auto; border: 1px solid var(--card-border); background: var(--card-bg); font-size: 0.85rem; border-radius: 6px; cursor: pointer; color: var(--text-primary);">
+                    <option value="UNDER_REVIEW">Under Review</option>
+                    <option value="RESOLVED">Resolved</option>
+                    <option value="REJECTED">Rejected</option>
+                  </select>
+                </div>
+                <button id="btn-detail-upvote" class="btn btn-secondary" style="height: 100%; padding: 0.6rem 1.25rem; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); margin: 0;">
+                  <i class="fa-solid fa-arrow-up"></i> Upvote
+                </button>
+                <div class="vote-count-display" style="display: flex; align-items: center; gap: 0.75rem; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 12px; padding: 0.6rem 1.25rem;">
+                  <i class="fa-solid fa-thumbs-up" style="color: #818cf8; font-size: 1.2rem;"></i>
+                  <div style="display: flex; flex-direction: column;">
+                    <span id="detail-votes" style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; color: #818cf8; line-height: 1;">0</span>
+                    <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Votes</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2-Column Grid Layout -->
+            <div class="detail-grid-layout" style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start;">
+              
+              <!-- Left Column -->
+              <div class="detail-left-col" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                
+                <!-- Complaint Details Card -->
+                <div class="glass-card" style="padding: 1.75rem; display: flex; flex-direction: column; gap: 1.25rem;">
+                  <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem; color: var(--text-primary);">
+                    <i class="fa-solid fa-circle-info" style="color: #6366f1;"></i> Complaint Details
+                  </h3>
+                  <div>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 0.5rem;">Description</span>
+                    <div style="background: rgba(0,0,0,0.15); border: 1px solid var(--card-border); border-radius: 8px; padding: 1rem; line-height: 1.6; color: var(--text-secondary); white-space: pre-line; font-size: 1rem; min-height: 80px;" id="detail-description">
+                      Complaint Description
+                    </div>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
+                    <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--card-border); padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.75rem;">
+                      <i class="fa-solid fa-map" style="color: #6366f1; font-size: 1.1rem;"></i>
+                      <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Village/Locality</span>
+                        <strong id="detail-village-item" style="font-size: 0.85rem; color: var(--text-primary); font-weight: 600;">RamNagar</strong>
+                      </div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--card-border); padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.75rem;">
+                      <i class="fa-solid fa-map-pin" style="color: #a855f7; font-size: 1.1rem;"></i>
+                      <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Ward/Block</span>
+                        <strong id="detail-ward-item" style="font-size: 0.85rem; color: var(--text-primary); font-weight: 600;">Ward 13</strong>
+                      </div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--card-border); padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.75rem;">
+                      <i class="fa-solid fa-city" style="color: #06b6d4; font-size: 1.1rem;"></i>
+                      <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">District</span>
+                        <strong id="detail-district-item" style="font-size: 0.85rem; color: var(--text-primary); font-weight: 600;">Junagadh</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Uploaded Image / Attachments Card -->
+                <div id="detail-attachments-container" class="glass-card" style="padding: 1.75rem; display: none; flex-direction: column; gap: 1.25rem;">
+                  <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem; color: var(--text-primary);">
+                    <i class="fa-solid fa-paperclip" style="color: #10b981;"></i> Uploaded Attachments
+                  </h3>
+                  <div id="detail-attachments-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- Attachments dynamically loaded -->
+                  </div>
+                </div>
+
+                <!-- AI Analysis Results Card -->
+                <div class="glass-card" style="padding: 1.75rem; display: flex; flex-direction: column; gap: 1.25rem;">
+                  <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem; color: var(--text-primary);">
+                    <i class="fa-solid fa-robot" style="color: #8b5cf6;"></i> AI Analysis Results
+                  </h3>
+                  
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; flex-wrap: wrap;">
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                      <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.5rem;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted);"><i class="fa-solid fa-tag" style="margin-right: 0.4rem; color: #8b5cf6;"></i> Category</span>
+                        <strong id="detail-category" style="font-size: 0.85rem; color: var(--text-primary);">WASTE_MANAGEMENT</strong>
+                      </div>
+                      <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.5rem;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted);"><i class="fa-solid fa-building" style="margin-right: 0.4rem; color: #06b6d4;"></i> Department</span>
+                        <strong id="detail-department" style="font-size: 0.85rem; color: var(--text-primary); text-align: right; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Municipal</strong>
+                      </div>
+                      <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.5rem;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted);"><i class="fa-solid fa-language" style="margin-right: 0.4rem; color: #3b82f6;"></i> Language</span>
+                        <strong id="detail-language" style="font-size: 0.85rem; color: var(--text-primary);">English</strong>
+                      </div>
+                      <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.5rem;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted);"><i class="fa-solid fa-triangle-exclamation" style="margin-right: 0.4rem; color: #f43f5e;"></i> Severity</span>
+                        <strong id="detail-severity" style="font-size: 0.85rem; color: #f43f5e; padding: 0.05rem 0.4rem; border-radius: 4px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);">HIGH</strong>
+                      </div>
+                      <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.5rem;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted);"><i class="fa-solid fa-user-shield" style="margin-right: 0.4rem; color: #10b981;"></i> Author</span>
+                        <strong id="detail-author" style="font-size: 0.85rem; color: var(--text-primary);">Anonymous</strong>
+                      </div>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 1rem; background: rgba(99, 102, 241, 0.03); border: 1px solid rgba(99, 102, 241, 0.1); border-radius: 10px; padding: 1rem;">
+                      <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; display: block;"><i class="fa-solid fa-wand-magic-sparkles" style="color: #8b5cf6;"></i> AI Summary</span>
+                      <p id="detail-ai-summary" style="font-size: 0.9rem; color: var(--text-secondary); margin: 0; line-height: 1.5; font-style: italic;">
+                        AI Analysis pending...
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Progress Bars -->
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem; border-top: 1px solid var(--card-border); padding-top: 1.25rem;">
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem;">
+                        <span style="color: var(--text-secondary); font-weight: 500;">Priority Score</span>
+                        <span style="color: #a855f7; font-weight: 700;"><span id="detail-priority-text">85</span>%</span>
+                      </div>
+                      <div style="height: 10px; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; border: 1px solid var(--card-border);">
+                        <div id="detail-priority-bar" style="width: 85%; height: 100%; background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%); border-radius: 5px; transition: width 0.8s ease-out;"></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem;">
+                        <span style="color: var(--text-secondary); font-weight: 500;">AI Confidence</span>
+                        <span style="color: #10b981; font-weight: 700;"><span id="detail-confidence-text">92</span>%</span>
+                      </div>
+                      <div style="height: 10px; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; border: 1px solid var(--card-border);">
+                        <div id="detail-confidence-bar" style="width: 92%; height: 100%; background: linear-gradient(90deg, #10b981 0%, #059669 100%); border-radius: 5px; transition: width 0.8s ease-out;"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Comments Card -->
+                <div class="glass-card" style="padding: 1.75rem; display: flex; flex-direction: column; gap: 1.5rem;">
+                  
+                  <!-- Government Comments Section -->
+                  <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem; color: #fbbf24;">
+                      <i class="fa-solid fa-building-shield"></i> Government Responses
+                    </h3>
+                    <div id="gov-comments-list" style="display: flex; flex-direction: column; gap: 1rem; padding-left: 0.5rem;">
+                      <span style="font-size: 0.9rem; color: var(--text-muted);">No government responses yet.</span>
+                    </div>
+                    
+                    <!-- Government Comment Form (visible only to admins) -->
+                    <div id="gov-comment-form-container" class="admin-only" style="border-top: 1px solid var(--card-border); padding-top: 1rem; display: none;">
+                      <form id="gov-comment-submit-form" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                          <label for="gov-comment-text" style="font-weight: 600; color: #fbbf24;">Add an official government response</label>
+                          <div class="input-wrapper">
+                            <textarea id="gov-comment-text" class="form-input" rows="2" placeholder="Write official response here..." style="padding-left: 1rem; height: auto;" required></textarea>
+                          </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="align-self: flex-end; width: auto; padding: 0.4rem 1.2rem; font-size: 0.85rem; background: #fbbf24; border-color: #fbbf24; color: #000;">
+                          <i class="fa-solid fa-paper-plane"></i> Post Response
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+
+                  <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 0.5rem 0;">
+
+                  <!-- Citizen Discussion Section -->
+                  <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem; color: #10b981;">
+                      <i class="fa-solid fa-comments"></i> Citizen Discussion
+                    </h3>
+                    <div id="user-comments-list" style="display: flex; flex-direction: column; gap: 1rem; padding-left: 0.5rem;">
+                      <span style="font-size: 0.9rem; color: var(--text-muted);">No citizen comments yet.</span>
+                    </div>
+                    
+                    <!-- Citizen Comment Form -->
+                    <div id="comment-form-container" style="border-top: 1px solid var(--card-border); padding-top: 1rem;">
+                      <form id="comment-submit-form" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                          <label for="comment-text" style="font-weight: 600;">Add a public comment</label>
+                          <div class="input-wrapper">
+                            <textarea id="comment-text" class="form-input" rows="2" placeholder="Write your comment here..." style="padding-left: 1rem; height: auto;" required></textarea>
+                          </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="align-self: flex-end; width: auto; padding: 0.4rem 1.2rem; font-size: 0.85rem;">
+                          <i class="fa-solid fa-paper-plane"></i> Post Comment
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+
+                  <!-- Pagination for comments -->
+                  <div id="comments-pagination" style="display: none; justify-content: space-between; align-items: center; font-size: 0.8rem; border-top: 1px solid var(--card-border); padding-top: 0.75rem;">
+                    <button id="btn-comments-prev" class="btn btn-secondary" style="width: auto; padding: 0.35rem 0.75rem; font-size: 0.75rem; margin: 0;">Prev</button>
+                    <span id="comments-page-info" style="color: var(--text-secondary); font-weight: 600;">Page 1 of 1</span>
+                    <button id="btn-comments-next" class="btn btn-secondary" style="width: auto; padding: 0.35rem 0.75rem; font-size: 0.75rem; margin: 0;">Next</button>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <!-- Right Column -->
+              <div class="detail-right-col" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                
+                <!-- AI Analysis Status -->
+                <div class="glass-card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; border-top: 4px solid #10b981;">
+                  <h4 style="font-size: 0.95rem; font-weight: 700; margin: 0; color: #10b981; display: flex; align-items: center; gap: 0.4rem;">
+                    <i class="fa-solid fa-robot"></i> AI Analysis Status
+                  </h4>
+                  <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem;">
+                    <span style="font-size: 0.75rem; background: rgba(16,185,129,0.12); color: #10b981; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 600; border: 1px solid rgba(16,185,129,0.2);">
+                      <i class="fa-solid fa-check" style="margin-right: 0.25rem;"></i> Completed
+                    </span>
+                  </div>
+                  <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0.25rem 0 0 0; line-height: 1.4;">
+                    AI analysis completed successfully. Category, department, and priority score have been evaluated.
+                  </p>
+                </div>
+
+                <!-- Government Status -->
+                <div class="glass-card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; border-top: 4px solid #fbbf24; position: relative; overflow: hidden;">
+                  <h4 style="font-size: 0.95rem; font-weight: 700; margin: 0; color: #fbbf24; display: flex; align-items: center; gap: 0.4rem;">
+                    <i class="fa-solid fa-building-columns"></i> Government Status
+                  </h4>
+                  <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem;">
+                    <span id="detail-status" style="font-size: 0.75rem; background: rgba(245,158,11,0.12); color: #fbbf24; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 600; border: 1px solid rgba(245,158,11,0.2); text-transform: uppercase;">
+                      Under Review
+                    </span>
+                  </div>
+                  <p id="detail-status-text" style="font-size: 0.85rem; color: var(--text-secondary); margin: 0.25rem 0 0 0; line-height: 1.4; z-index: 1;">
+                    Your complaint is waiting to be reviewed by the government authorities.
+                  </p>
+                  <i class="fa-solid fa-building-shield" style="position: absolute; bottom: -10px; right: -10px; font-size: 4.5rem; color: rgba(255,255,255,0.02); pointer-events: none;"></i>
+                </div>
+
+                <!-- Complaint Timeline -->
+                <div class="glass-card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
+                  <h4 style="font-size: 0.95rem; font-weight: 700; margin: 0; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.75rem;">
+                    <i class="fa-solid fa-timeline" style="color: #6366f1;"></i> Complaint Timeline
+                  </h4>
+                  
+                  <!-- Vertical Timeline -->
+                  <div style="display: flex; flex-direction: column; gap: 1.5rem; position: relative; padding-left: 1.5rem;">
+                    <!-- Vertical Line -->
+                    <div style="position: absolute; left: 6px; top: 8px; bottom: 8px; width: 2px; background: rgba(255,255,255,0.05);"></div>
+                    
+                    <!-- Step 1 -->
+                    <div style="position: relative; display: flex; flex-direction: column; gap: 0.15rem;">
+                      <div id="timeline-dot-1" style="position: absolute; left: -21px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: #10b981; border: 2px solid var(--card-bg); box-shadow: 0 0 0 2px rgba(16,185,129,0.25);"></div>
+                      <strong style="font-size: 0.85rem; color: var(--text-primary);">Complaint Submitted</strong>
+                      <span style="font-size: 0.75rem; color: var(--text-muted);" id="timeline-time-1">03 July, 2026</span>
+                    </div>
+                    
+                    <!-- Step 2 -->
+                    <div style="position: relative; display: flex; flex-direction: column; gap: 0.15rem;">
+                      <div id="timeline-dot-2" style="position: absolute; left: -21px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: #10b981; border: 2px solid var(--card-bg); box-shadow: 0 0 0 2px rgba(16,185,129,0.25);"></div>
+                      <strong style="font-size: 0.85rem; color: var(--text-primary);">AI Analysis Completed</strong>
+                      <span style="font-size: 0.75rem; color: var(--text-muted);" id="timeline-time-2">03 July, 2026</span>
+                    </div>
+                    
+                    <!-- Step 3 -->
+                    <div style="position: relative; display: flex; flex-direction: column; gap: 0.15rem;">
+                      <div id="timeline-dot-3" style="position: absolute; left: -21px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: #fbbf24; border: 2px solid var(--card-bg); box-shadow: 0 0 0 2px rgba(245,158,11,0.25);"></div>
+                      <strong id="timeline-title-3" style="font-size: 0.85rem; color: var(--text-primary);">Under Government Review</strong>
+                      <span style="font-size: 0.75rem; color: var(--text-muted);" id="timeline-time-3">In progress</span>
+                    </div>
+                    
+                    <!-- Step 4 -->
+                    <div style="position: relative; display: flex; flex-direction: column; gap: 0.15rem;">
+                      <div id="timeline-dot-4" style="position: absolute; left: -21px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 2px solid var(--card-bg);"></div>
+                      <strong id="timeline-title-4" style="font-size: 0.85rem; color: var(--text-muted);">Action Taken / Resolved</strong>
+                      <span style="font-size: 0.75rem; color: var(--text-muted);" id="timeline-time-4">Pending</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Priority & Confidence Panel -->
+                <div class="glass-card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                  <h4 style="font-size: 0.95rem; font-weight: 700; margin: 0; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.75rem;">
+                    <i class="fa-solid fa-chart-bar" style="color: #06b6d4;"></i> Priority & Confidence
+                  </h4>
+                  <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                      <span style="color: var(--text-secondary);">Priority Score:</span>
+                      <strong style="color: #a855f7;" id="sidebar-priority-value">85%</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                      <span style="color: var(--text-secondary);">AI Confidence:</span>
+                      <strong style="color: #10b981;" id="sidebar-confidence-value">92%</strong>
+                    </div>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0.25rem 0 0 0; line-height: 1.3;">
+                      Higher priority score triggers faster routing to local authorities.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Need Help? Support Card -->
+                <div class="glass-card" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; background: linear-gradient(135deg, rgba(99,102,241,0.02) 0%, rgba(168,85,247,0.02) 100%);">
+                  <h4 style="font-size: 0.95rem; font-weight: 700; margin: 0; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+                    <i class="fa-solid fa-circle-question" style="color: #818cf8;"></i> Need Help?
+                  </h4>
+                  <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">
+                    If you have any issues or want to add more information to your complaint, contact support.
+                  </p>
+                  <button class="btn btn-secondary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.5rem 1rem; margin: 0.25rem 0 0 0; font-size: 0.85rem;" onclick="showToast('Support system loaded.', 'info')">
+                    <i class="fa-solid fa-headset"></i> Contact Support
+                  </button>
+                </div>
+
+              </div>
+              
+            </div>
+            
+          </div>
+        </section>
+
+        <!-- Admin Dashboard View -->
+        <section id="admin-dashboard-section" class="view-section">
+          <div class="dashboard-grid-layout" style="display: flex; flex-direction: column; gap: 2rem;">
+            <div class="glass-card welcome-banner" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.03) 0%, rgba(220, 38, 38, 0.03) 100%); border-left: 5px solid #f59e0b; padding: 1.75rem; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 250px;">
+                <h2 style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; color: #f59e0b; margin-bottom: 0.25rem;">Admin Panel - Feedback Management</h2>
+                <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5;">Review citizen grievances, update statuses, and monitor system performance.</p>
+              </div>
+              <button id="btn-admin-refresh" class="btn btn-secondary" style="width: auto; padding: 0.45rem 0.85rem; font-size: 0.8rem; margin: 0;">
+                <i class="fa-solid fa-arrows-spin"></i> Refresh Data
+              </button>
+            </div>
+            
+            <div class="glass-card" style="padding: 1.5rem;">
+              <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; color: var(--text-primary);">
+                <i class="fa-solid fa-list-check" style="color: #6366f1;"></i> All Public Feedbacks
+              </h3>
+              <div id="admin-feedback-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                <!-- Feedbacks loaded via JS -->
+              </div>
+              <div id="admin-feedback-pagination" style="display: none; justify-content: space-between; align-items: center; font-size: 0.8rem; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--card-border);">
+                <button id="btn-admin-prev" class="btn btn-secondary" style="width: auto; padding: 0.35rem 0.75rem; font-size: 0.75rem; margin: 0;">Prev</button>
+                <span id="admin-page-info" style="color: var(--text-secondary); font-weight: 600;">Page 1 of 1</span>
+                <button id="btn-admin-next" class="btn btn-secondary" style="width: auto; padding: 0.35rem 0.75rem; font-size: 0.75rem; margin: 0;">Next</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Admin Create View -->
+        <section id="admin-create-section" class="view-section">
+          <div class="admin-grid" style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; max-width: 1200px; margin: 0 auto; align-items: start;">
+            
+            <!-- Left Column: Create New Admin -->
+            <div class="glass-card" style="padding: 2rem;">
+              <div class="auth-card-header" style="text-align: center; margin-bottom: 2rem;">
+                <h2 style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; color: var(--text-primary);">Create New Admin</h2>
+                <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.5rem;">Register a new administrative user with elevated privileges.</p>
+              </div>
+              <form id="admin-create-form" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <div class="form-group" style="margin: 0;">
+                  <label for="admin-create-username">Admin Username</label>
+                  <div class="input-wrapper">
+                    <input type="text" id="admin-create-username" class="form-input" placeholder="e.g. system_admin" required>
+                    <i class="fa-solid fa-user-shield"></i>
+                  </div>
+                </div>
+                <div class="form-group" style="margin: 0;">
+                  <label for="admin-create-password">Admin Password</label>
+                  <div class="input-wrapper">
+                    <input type="password" id="admin-create-password" class="form-input" placeholder="Min. 8 characters" required>
+                    <i class="fa-solid fa-lock"></i>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+                  <i class="fa-solid fa-user-plus"></i> Create Admin Account
+                </button>
+              </form>
+            </div>
+
+            <!-- Right Column: Admin Directory -->
+            <div class="glass-card" style="padding: 2rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+                <div>
+                  <h3 style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-users-gear" style="color: #6366f1;"></i>Admin Directory
+                  </h3>
+                  <p style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 0.25rem;">Search and manage administrative accounts.</p>
+                </div>
+              </div>
+
+              <!-- Admin Search Bar -->
+              <div class="search-container" id="admin-search-container" style="width: 100%; margin-bottom: 1.5rem;">
+                <div class="search-input-wrapper">
+                  <i class="fa-solid fa-magnifying-glass search-icon" style="font-size: 0.85rem; left: 0.85rem; pointer-events: auto; cursor: pointer;" id="btn-admin-search"></i>
+                  <input type="text" id="admin-search-input" class="search-input" placeholder="Search admins by username..." autocomplete="off" style="padding: 0.5rem 5rem 0.5rem 2.25rem; font-size: 0.88rem; border-radius: 8px;">
+                  <kbd class="search-kbd" style="right: 0.5rem; font-size: 0.65rem;">Enter ↵</kbd>
+                </div>
+              </div>
+
+              <!-- Admin List -->
+              <div id="admin-users-list" style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem;">
+                <span style="font-size: 0.88rem; color: var(--text-muted);">Loading admin directory...</span>
+              </div>
+
+              <!-- Admin Pagination -->
+              <div id="admin-users-pagination" style="display: none; justify-content: space-between; align-items: center; font-size: 0.8rem; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--card-border);">
+                <button id="btn-admin-users-prev" class="btn btn-secondary" style="width: auto; padding: 0.35rem 0.75rem; font-size: 0.75rem; margin: 0;">Prev</button>
+                <span id="admin-users-page-info" style="color: var(--text-secondary); font-weight: 600;">Page 1 of 1</span>
+                <button id="btn-admin-users-next" class="btn btn-secondary" style="width: auto; padding: 0.35rem 0.75rem; font-size: 0.75rem; margin: 0;">Next</button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+
+      <!-- Right Sidebar for Mini Leaderboard -->
+      <aside id="right-sidebar" class="right-sidebar" style="display: none;">
+        <div class="glass-card mini-leaderboard-card">
+          <div class="mini-leaderboard-header">
+            <h3><i class="fa-solid fa-fire" style="color: #ea580c; margin-right: 0.5rem;"></i>Trending Grievances</h3>
+            <button id="btn-refresh-mini-leaderboard" class="btn-icon-refresh" title="Refresh">
+              <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+          </div>
+          <div id="mini-leaderboard-list" class="mini-leaderboard-list">
+            <!-- Dynamically populated top 5 grievances -->
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Message Center Floating Panel (anchored to bell icon) -->
+  <div id="messages-panel" class="msg-panel" aria-label="Message Center" role="dialog" aria-modal="true">
+    <!-- Panel Header -->
+    <div class="msg-panel-header">
+      <span class="msg-panel-title"><i class="fa-solid fa-inbox"></i> Inbox</span>
+      <button id="btn-close-messages" class="msg-panel-close" title="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Message List View -->
+    <div id="msg-list-view" class="msg-view">
+      <div id="messages-list" class="msg-list"></div>
+      <div id="messages-pagination" class="msg-pagination" style="display:none;">
+        <button id="btn-messages-prev" class="btn btn-secondary msg-pg-btn"><i class="fa-solid fa-chevron-left"></i></button>
+        <span id="messages-page-info" class="msg-pg-info">Page 1</span>
+        <button id="btn-messages-next" class="btn btn-secondary msg-pg-btn"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+    </div>
+
+    <!-- Message Detail View (inline, no modal) -->
+    <div id="msg-detail-view" class="msg-view" style="display:none;">
+      <button id="btn-msg-back" class="msg-back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Inbox</button>
+      <div class="msg-detail-content">
+        <h4 id="message-detail-title" class="msg-detail-title"></h4>
+        <span id="message-detail-date" class="msg-detail-date"></span>
+        <div id="message-detail-body" class="msg-detail-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel Backdrop (outside click closes) -->
+  <div id="messages-panel-backdrop" class="msg-backdrop" style="display:none;"></div>
+
+  <!-- Hidden Google Translate Widget -->
+  <div id="google_translate_element" style="display:none;"></div>
+  <script>
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en',
+        includedLanguages: 'en,hi',
+        autoDisplay: false,
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+      }, 'google_translate_element');
+    }
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

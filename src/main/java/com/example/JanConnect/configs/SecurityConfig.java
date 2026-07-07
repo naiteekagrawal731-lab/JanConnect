@@ -41,6 +41,10 @@ public class SecurityConfig {
                 .sessionManagement(sem -> sem.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                //Public url
+                                "/feedback/title",
+                                "/comments",
+
                                 "/login",
                                 "/api/auth/token",
                                 "/api/login/usernamepassword/**",
@@ -51,9 +55,12 @@ public class SecurityConfig {
                                 "/login/oauth2/**",
                                 "/error",
                                 "/api/register",
+                                "/api/logout",
                                 // After success login brower points
                                 "/.well-known/**",
-                                "/favicon.ico"
+                                "/favicon.ico",
+                                "/login/oauth2/code/google",
+                                "/feedback"
 
                                 )
                         .permitAll()

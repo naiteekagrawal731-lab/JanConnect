@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JanConnect - Secure Authentication Portal</title>
+  <!-- FontAwesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script type="module" crossorigin src="/assets/index-CsIABEZ4.js"></script>
+</head>
+<body>
+
+  <!-- Loading Spinner Overlay -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Toast Alert Notifications -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- App Wrapper -->
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header>
+      <div class="brand">
+        <i class="fa-solid fa-circle-nodes brand-icon"></i>
+        <span>JanConnect</span>
+      </div>
+      <div id="header-user" style="display: none; align-items: center; gap: 1rem;">
+        <span id="header-username" style="font-weight: 500; font-size: 0.95rem; color: var(--text-secondary);"></span>
+        <button id="btn-header-logout" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem; width: auto; display: flex; gap: 0.35rem;">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
+    </header>
+
+    <!-- 1. Authentication View -->
+    <section id="auth-section" class="view-section active">
+      <div class="auth-grid">
+        
+        <!-- Branding and information -->
+        <div class="auth-info">
+          <h1>Identity & OAuth Connection Hub</h1>
+          <p>A secure identity provider featuring stateless JWT-based sessions, cookie-based refresh tokens, password encryption, and multi-provider OAuth2 integrations.</p>
+          
+          <div class="feature-list">
+            <div class="feature-item">
+              <i class="fa-solid fa-shield-halved"></i>
+              <div>
+                <h4>Secure Identity Management</h4>
+                <p>Industry-standard Bcrypt password hashing and custom JWT filter protection.</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <i class="fa-solid fa-arrows-rotate"></i>
+              <div>
+                <h4>Refresh Token Rotation</h4>
+                <p>Secure, HttpOnly refresh cookies storing unique UUID sessions in PostgreSQL.</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <i class="fa-brands fa-google"></i>
+              <div>
+                <h4>Google & YouTube Scope Linking</h4>
+                <p>Directly links Google identities with custom YouTube and YT-Analytics scopes.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Credentials forms -->
+        <div class="glass-card auth-card">
+          
+          <!-- Login Form State -->
+          <div id="login-state" class="auth-form-state">
+            <div class="auth-card-header">
+              <h2>Welcome Back</h2>
+              <p>Don't have an account? <a href="#" id="link-to-register">Register here</a></p>
+            </div>
+            
+            <form id="login-form">
+              <div class="form-group">
+                <label for="login-username">Username</label>
+                <div class="input-wrapper">
+                  <input type="text" id="login-username" class="form-input" placeholder="Enter your username" required autocomplete="username">
+                  <i class="fa-solid fa-user"></i>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="login-password">Password</label>
+                <div class="input-wrapper">
+                  <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+                  <i class="fa-solid fa-lock"></i>
+                </div>
+              </div>
+              
+              <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-right-to-bracket"></i> Sign In
+              </button>
+            </form>
+          </div>
+
+          <!-- Register Form State -->
+          <div id="register-state" class="auth-form-state" style="display: none;">
+            <div class="auth-card-header">
+              <h2>Create Account</h2>
+              <p>Already have an account? <a href="#" id="link-to-login">Sign in here</a></p>
+            </div>
+            
+            <form id="register-form">
+              <div class="form-group">
+                <label for="register-username">Username</label>
+                <div class="input-wrapper">
+                  <input type="text" id="register-username" class="form-input" placeholder="Create username" required autocomplete="username">
+                  <i class="fa-solid fa-user-plus"></i>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="register-password">Password</label>
+                <div class="input-wrapper">
+                  <input type="password" id="register-password" class="form-input" placeholder="Min. 8 characters" required autocomplete="new-password">
+                  <i class="fa-solid fa-lock"></i>
+                </div>
+              </div>
+              
+              <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-user-check"></i> Register Account
+              </button>
+            </form>
+          </div>
+
+          <div class="divider">or continue with</div>
+
+          <button id="btn-google-login" class="btn btn-google">
+            <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="Google">
+            Sign in with Google
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Dashboard View -->
+    <section id="dashboard-section" class="view-section">
+      <div class="dashboard-grid">
+        
+        <!-- Sidebar items -->
+        <div class="dashboard-sidebar">
+          
+          <!-- Profile Card -->
+          <div class="glass-card">
+            <div class="user-profile-header">
+              <div id="profile-avatar" class="user-avatar">U</div>
+              <div class="user-meta">
+                <h3 id="profile-username">User Profile</h3>
+                <span id="profile-role" class="role-badge">USER</span>
+              </div>
+            </div>
+            
+            <div class="info-item">
+              <span class="info-label">Email Address</span>
+              <span id="info-email" class="info-value">Not Linked</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Active Connection</span>
+              <span id="info-status" class="info-value status-active">
+                <span class="status-indicator status-active"><span class="status-dot"></span>Active</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- OAuth2 Connections Status -->
+          <div class="glass-card">
+            <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;">Linked Identities</h3>
+            
+            <div class="provider-badge">
+              <div class="provider-info">
+                <div class="provider-icon provider-google">
+                  <i class="fa-brands fa-google"></i>
+                </div>
+                <div>
+                  <h4 style="font-size: 0.95rem; font-weight: 600;">Google Account</h4>
+                  <p style="font-size: 0.8rem; color: var(--text-muted);">Sign-in integration</p>
+                </div>
+              </div>
+              <span id="link-status-google" class="status-indicator status-inactive">
+                <span class="status-dot"></span>Disconnected
+              </span>
+            </div>
+
+            <div class="provider-badge">
+              <div class="provider-info">
+                <div class="provider-icon provider-youtube">
+                  <i class="fa-brands fa-youtube"></i>
+                </div>
+                <div>
+                  <h4 style="font-size: 0.95rem; font-weight: 600;">YouTube Services</h4>
+                  <p style="font-size: 0.8rem; color: var(--text-muted);">Analytics & Read access</p>
+                </div>
+              </div>
+              <span id="link-status-youtube" class="status-indicator status-inactive">
+                <span class="status-dot"></span>Disconnected
+              </span>
+            </div>
+
+            <button id="btn-link-oauth" class="btn btn-secondary" style="font-size: 0.9rem; padding: 0.65rem; margin-top: 0.5rem;">
+              <i class="fa-solid fa-link"></i> Link Google/YouTube
+            </button>
+          </div>
+
+          <!-- Change Password Card -->
+          <div class="glass-card">
+            <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;">Security Settings</h3>
+            <form id="change-password-form">
+              <div class="form-group">
+                <label for="new-password">New Password</label>
+                <div class="input-wrapper">
+                  <input type="password" id="new-password" class="form-input" placeholder="Min. 8 characters" required autocomplete="new-password">
+                  <i class="fa-solid fa-key"></i>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary" style="font-size: 0.9rem; padding: 0.65rem;">
+                <i class="fa-solid fa-lock-open"></i> Update Password
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Main dashboard content -->
+        <div class="dashboard-main">
+          
+          <!-- Session Status & Refresh -->
+          <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+              <div>
+                <h3 style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700;">Active Session State</h3>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">Control and monitor your stateless JWT session lifetime.</p>
+              </div>
+              <span id="session-countdown-badge" class="role-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                Expires: <span id="session-countdown">10:00</span>
+              </span>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+              <button id="btn-refresh-token" class="btn btn-secondary" style="flex: 1;">
+                <i class="fa-solid fa-arrows-spin"></i> Refresh Access Token
+              </button>
+              <button id="btn-dashboard-logout" class="btn btn-primary" style="flex: 1; background: var(--danger-gradient); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);">
+                <i class="fa-solid fa-power-off"></i> End Session
+              </button>
+            </div>
+          </div>
+
+          <!-- Token viewer and JWT decoder -->
+          <div class="glass-card">
+            <div class="code-header">
+              <span class="code-title"><i class="fa-solid fa-key" style="color: #6366f1; margin-right: 0.5rem;"></i>Active JSON Web Token (JWT)</span>
+              <button id="btn-copy-token" class="btn btn-secondary" style="width: auto; padding: 0.35rem 0.75rem; font-size: 0.8rem; display: flex; gap: 0.35rem;">
+                <i class="fa-solid fa-copy"></i> Copy Token
+              </button>
+            </div>
+            <div id="jwt-raw" class="code-container" style="word-break: break-all; margin-bottom: 1.5rem; user-select: all;">
+              No JWT available. Log in to retrieve a token.
+            </div>
+
+            <div class="code-header">
+              <span class="code-title"><i class="fa-solid fa-magnifying-glass-chart" style="color: #06b6d4; margin-right: 0.5rem;"></i>Decoded JWT Claims</span>
+            </div>
+            <pre id="jwt-decoded" class="code-container" style="color: #22c55e;">
+{
+  "status": "Logged Out"
+}
+            </pre>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+</body>
+</html>
