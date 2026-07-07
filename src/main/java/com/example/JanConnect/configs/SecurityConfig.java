@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 //Public url
                                 "/feedback/title",
                                 "/comments",
+                                "/",
 
                                 "/login",
                                 "/api/auth/token",
