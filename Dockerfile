@@ -1,32 +1,30 @@
-# ---------- Build Frontend ----------
-FROM node:22 AS frontend-build
+# ---------- Frontend Build ----------
+FROM node:22-alpine AS frontend-build
 
 WORKDIR /frontend
 
 COPY frontend/package*.json ./
-RUN npm install
+RUN npm ci
 
 COPY frontend/ .
 RUN npm run build
 
 
-# ---------- Build Backend ----------
-FROM maven:3.9.9-eclipse-temurin-25 AS backend-build
+# ---------- Backend Build ----------
+FROM eclipse-temurin:25-jdk AS backend-build
 
-WORKDIR /backend
+WORKDIR /app
 
-COPY backend/pom.xml .
-COPY backend/.mvn .mvn
-COPY backend/mvnw .
+COPY backend/ .
+
+# Make Maven wrapper executable
 RUN chmod +x mvnw
 
-RUN ./mvnw dependency:go-offline
+# Copy frontend build into Spring Boot static resources
+RUN mkdir -p src/main/resources/static
+COPY --from=frontend-build /frontend/dist/ src/main/resources/static/
 
-COPY backend/src src
-
-# Copy frontend build into Spring Boot static folder
-COPY --from=frontend-build /frontend/dist src/main/resources/static
-
+# Build Spring Boot application
 RUN ./mvnw clean package -DskipTests
 
 
@@ -35,8 +33,8 @@ FROM eclipse-temurin:25-jre
 
 WORKDIR /app
 
-COPY --from=backend-build /backend/target/*.jar app.jar
+COPY --from=backend-build /app/target/*.jar app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
