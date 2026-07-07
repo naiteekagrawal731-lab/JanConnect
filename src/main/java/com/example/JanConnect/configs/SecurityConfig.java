@@ -65,6 +65,7 @@ public class SecurityConfig {
 
                                 )
                         .permitAll()
+                        .requestMatchers("/", "/index.html", "/assets/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(auth -> auth
                         .successHandler(oAuth2LoginSuccessHandler))
