@@ -1,26 +1,30 @@
-# ---------- Frontend Build ----------
+# =========================
+# Stage 1 - Build Frontend
+# =========================
 FROM node:22-alpine AS frontend-build
 
 WORKDIR /frontend
 
 COPY frontend/package*.json ./
-RUN npm ci
+RUN npm install
 
 COPY frontend/ .
 RUN npm run build
 
 
-# ---------- Backend Build ----------
+# =========================
+# Stage 2 - Build Backend
+# =========================
 FROM eclipse-temurin:25-jdk AS backend-build
 
 WORKDIR /app
 
-COPY backend/ .
+COPY . .
 
-# Make Maven wrapper executable
 RUN chmod +x mvnw
 
 # Copy frontend build into Spring Boot static resources
+RUN rm -rf src/main/resources/static/*
 RUN mkdir -p src/main/resources/static
 COPY --from=frontend-build /frontend/dist/ src/main/resources/static/
 
@@ -28,7 +32,9 @@ COPY --from=frontend-build /frontend/dist/ src/main/resources/static/
 RUN ./mvnw clean package -DskipTests
 
 
-# ---------- Runtime ----------
+# =========================
+# Stage 3 - Runtime
+# =========================
 FROM eclipse-temurin:25-jre
 
 WORKDIR /app
