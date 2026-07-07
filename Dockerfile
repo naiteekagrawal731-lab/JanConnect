@@ -6,9 +6,14 @@ FROM node:22-alpine AS frontend-build
 WORKDIR /frontend
 
 COPY frontend/package*.json ./
-RUN npm install
+
+RUN npm ci
 
 COPY frontend/ .
+
+# Fix Vite permission issue
+RUN chmod +x node_modules/.bin/vite
+
 RUN npm run build
 
 
@@ -24,8 +29,8 @@ COPY . .
 RUN chmod +x mvnw
 
 # Copy frontend build into Spring Boot static resources
-RUN rm -rf src/main/resources/static/*
 RUN mkdir -p src/main/resources/static
+RUN rm -rf src/main/resources/static/*
 COPY --from=frontend-build /frontend/dist/ src/main/resources/static/
 
 # Build Spring Boot application
