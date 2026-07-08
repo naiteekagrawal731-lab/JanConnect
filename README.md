@@ -237,12 +237,6 @@ Feel free to check [issues page](#).
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
-## ✍️ Author
-
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your Profile](https://linkedin.com/in/yourprofile)
-
 ## 🙏 Acknowledgements
 
 - [Spring Boot](https://spring.io/projects/spring-boot)
