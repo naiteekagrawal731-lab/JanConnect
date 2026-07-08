@@ -45,6 +45,7 @@ public class SecurityConfig {
                                 "/feedback/title",
                                 "/comments",
                                 "/",
+                                "/ping",
 
                                 "/login",
                                 "/api/auth/token",
