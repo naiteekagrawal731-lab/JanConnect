@@ -273,7 +273,7 @@ public class FeedbackService {
     }
     @Transactional
     public Page<FeedbackDto> getPublicFeedbacks(Pageable pageable){
-        return feedbackRepo.findByVisibilityInAndIsValid(List.of(Visibility.PUBLIC,Visibility.ANONYMOUS),true,pageable).map(feedbackMapper::toDto);
+        return feedbackRepo.findByVisibilityInAndIsValidAndStatus(List.of(Visibility.PUBLIC,Visibility.ANONYMOUS),true,FeedBackStatus.UNDER_REVIEW,pageable).map(feedbackMapper::toDto);
     }
 
     @Transactional
