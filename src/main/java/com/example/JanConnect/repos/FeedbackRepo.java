@@ -17,18 +17,11 @@ import java.util.UUID;
 
 @Repository
 public interface FeedbackRepo extends JpaRepository<FeedBack, UUID> {
-    Page<FeedBack> findByVisibilityInAndIsValidAndStatus(
-            List<Visibility> visibility,
-            Boolean isValid,
-            FeedBackStatus status,
-            Pageable pageable
-    );
     Page<FeedBack> findByVisibilityInAndIsValid(
             List<Visibility> visibility,
             Boolean isValid,
             Pageable pageable
     );
-
 
     Page<FeedBack> findByTitleContainingIgnoreCaseAndVisibilityInAndIsValidAndStatus(String title, List<Visibility> visibility, Boolean isValid, FeedBackStatus status, Pageable pageable);
 
