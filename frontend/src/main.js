@@ -417,7 +417,7 @@ async function fetchDashboardStats() {
           const allData = await allRes.json();
           const items = allData.content || [];
           const pending = items.filter(i => (i.status || '').includes('REVIEW') || (i.status || '') === 'PENDING').length;
-          const resolved = items.filter(i => (i.status || '').includes('RESOLVED') || (i.status || '').includes('CLOSED') || (i.status || '') === 'SOLVED').length;
+          const resolved = items.filter(i => (i.status || '').includes('RESOLVED') || (i.status || '').includes('CLOSED')).length;
           if (statPendingReview) animateCount(statPendingReview, pending);
           if (statCasesResolved) animateCount(statCasesResolved, resolved);
         }
@@ -502,7 +502,7 @@ async function fetchProfileStats() {
       const items = data.content || [];
       const total = data.totalElements || items.length;
       const upvotes = items.reduce((sum, i) => sum + (i.upVote || 0), 0);
-      const resolved = items.filter(i => { const s = (i.status || '').toUpperCase(); return s.includes('RESOLVED') || s.includes('CLOSED') || s === 'SOLVED'; }).length;
+      const resolved = items.filter(i => (i.status || '').toUpperCase().includes('RESOLVED')).length;
       animateCount(totalEl, total);
       animateCount(upvotesEl, upvotes);
       animateCount(resolvedEl, resolved);
