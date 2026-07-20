@@ -11,7 +11,6 @@ let lastSearchView = 'dashboard'; // track where we came from
 let currentUserFeedbacksPage = 0;
 let currentCommentsPage = 0;
 let loggedInUsername = null;
-let currentLeaderboardTab = 'UNDER_REVIEW'; // Add leaderboard tab state
 
 // DOM Elements
 const authSection = document.getElementById('auth-section');
@@ -139,8 +138,6 @@ const feedbackDetailSection = document.getElementById('feedback-detail-section')
 const leaderboardList = document.getElementById('leaderboard-list');
 const btnRefreshLeaderboard = document.getElementById('btn-refresh-leaderboard');
 const btnDetailBack = document.getElementById('btn-detail-back');
-const tabLeaderboardReview = document.getElementById('tab-leaderboard-review');
-const tabLeaderboardSolved = document.getElementById('tab-leaderboard-solved');
 
 // Admin Elements
 const adminDashboardSection = document.getElementById('admin-dashboard-section');
@@ -310,23 +307,13 @@ async function fetchLeaderboard() {
   if (!leaderboardList) return;
   leaderboardList.innerHTML = '<span style="font-size: 0.9rem; color: var(--text-muted);">Loading leaderboard...</span>';
   try {
-    const response = await fetch('/feedback?sort=upVote,desc&size=50', {
+    const response = await fetch('/feedback?sort=upVote,desc&size=10', {
       method: 'GET'
     });
 
     if (response.ok) {
       const data = await response.json();
-      const allFeedbacks = data.content || [];
-      const filteredFeedbacks = allFeedbacks.filter(item => {
-        const status = item.status || 'UNDER_REVIEW';
-        if (currentLeaderboardTab === 'UNDER_REVIEW') {
-          return status === 'UNDER_REVIEW' || status === 'PENDING';
-        } else if (currentLeaderboardTab === 'SOLVED') {
-          return status === 'SOLVED' || status === 'RESOLVED' || status === 'CLOSED';
-        }
-        return false;
-      }).slice(0, 10);
-      renderLeaderboard(filteredFeedbacks);
+      renderLeaderboard(data.content || []);
     } else {
       leaderboardList.innerHTML = '<span style="font-size: 0.9rem; color: #ef4444;">Failed to load leaderboard.</span>';
     }
@@ -2249,32 +2236,6 @@ btnHeaderLogout.addEventListener('click', handleLogout);
 btnDashboardLogout.addEventListener('click', handleLogout);
 btnCopyToken.addEventListener('click', copyRawToken);
 if (btnRefreshLeaderboard) btnRefreshLeaderboard.addEventListener('click', fetchLeaderboard);
-
-if (tabLeaderboardReview) {
-  tabLeaderboardReview.addEventListener('click', () => {
-    currentLeaderboardTab = 'UNDER_REVIEW';
-    tabLeaderboardReview.style.borderBottom = '2px solid #fbbf24';
-    tabLeaderboardReview.style.color = 'var(--text-primary)';
-    if (tabLeaderboardSolved) {
-      tabLeaderboardSolved.style.borderBottom = '2px solid transparent';
-      tabLeaderboardSolved.style.color = 'var(--text-muted)';
-    }
-    fetchLeaderboard();
-  });
-}
-
-if (tabLeaderboardSolved) {
-  tabLeaderboardSolved.addEventListener('click', () => {
-    currentLeaderboardTab = 'SOLVED';
-    tabLeaderboardSolved.style.borderBottom = '2px solid #10b981';
-    tabLeaderboardSolved.style.color = 'var(--text-primary)';
-    if (tabLeaderboardReview) {
-      tabLeaderboardReview.style.borderBottom = '2px solid transparent';
-      tabLeaderboardReview.style.color = 'var(--text-muted)';
-    }
-    fetchLeaderboard();
-  });
-}
 if (headerProfileTrigger) {
   headerProfileTrigger.addEventListener('click', (e) => {
     e.preventDefault();
