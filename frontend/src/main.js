@@ -205,14 +205,14 @@ function showToast(message, type = 'info') {
   let icon = 'fa-circle-info';
   if (type === 'success') icon = 'fa-circle-check';
   if (type === 'error') icon = 'fa-circle-exclamation';
-
+  
   toast.innerHTML = `
     <i class="fa-solid ${icon}"></i>
     <span style="flex: 1;">${message}</span>
   `;
-
+  
   toastContainer.appendChild(toast);
-
+  
   // Slide out after 3.5s and remove
   setTimeout(() => {
     toast.style.animation = 'none';
@@ -261,7 +261,7 @@ function switchView(viewName) {
   } else {
     if (sidebarNav) sidebarNav.style.display = 'block';
     headerUser.style.display = 'flex';
-
+    
     // Update active nav link
     if (sidebarLinks) {
       sidebarLinks.forEach(link => {
@@ -342,7 +342,7 @@ async function fetchMiniLeaderboard() {
   if (!miniLeaderboardList) return;
   miniLeaderboardList.innerHTML = `
     <div class="mini-lb-skeleton" style="display:flex;flex-direction:column;gap:0.6rem;">
-      ${[1, 2, 3, 4, 5].map(() => `<div style="height:52px;border-radius:10px;background:rgba(0,0,0,0.04);animation:shimmer 1.5s infinite;"></div>`).join('')}
+      ${[1,2,3,4,5].map(() => `<div style="height:52px;border-radius:10px;background:rgba(0,0,0,0.04);animation:shimmer 1.5s infinite;"></div>`).join('')}
     </div>`;
   try {
     const response = await fetch('/feedback?sort=upVote,desc&size=5', { method: 'GET' });
@@ -416,10 +416,10 @@ async function fetchDashboardStats() {
         if (allRes.ok) {
           const allData = await allRes.json();
           const items = allData.content || [];
-          const pending = items.filter(i => (i.status || '').includes('UNDER_REVIEW') || (i.status || '') === 'PENDING').length;
+          const pending = items.filter(i => (i.status || '').includes('REVIEW') || (i.status || '') === 'PENDING').length;
           const resolved = items.filter(i => (i.status || '').includes('RESOLVED') || (i.status || '').includes('CLOSED') || (i.status || '') === 'SOLVED').length;
-          animateCount(statPendingReview, pending);
-          animateCount(statCasesResolved, resolved);
+          if (statPendingReview) animateCount(statPendingReview, pending);
+          if (statCasesResolved) animateCount(statCasesResolved, resolved);
         }
       }
     }
@@ -623,18 +623,18 @@ async function upvoteFeedback(feedbackId, elementToUpdate) {
         elementToUpdate.textContent = currentVotes + 1;
       }
       showToast('Upvoted successfully!', 'success');
-
+      
       // If we're viewing the detailed view and it's the same feedback, update it there too if not already
       if (currentDetailFeedbackId === feedbackId && elementToUpdate !== detailVotes) {
         let dVotes = parseInt(detailVotes.textContent);
         if (!isNaN(dVotes)) detailVotes.textContent = dVotes + 1;
       }
-
+      
       // If we upvote from detailed view, also try to fetch and update leaderboard
       if (elementToUpdate === detailVotes) {
         fetchLeaderboard(); // refresh leaderboard in background
       }
-
+      
     } else {
       const errorText = await response.text().catch(() => '');
       if (response.status === 409) {
@@ -661,17 +661,17 @@ function renderFeedbackDetail(feedback) {
   detailAuthor.textContent = feedback.createdBy || 'Anonymous';
   detailCategory.textContent = feedback.category || 'OTHER';
   detailDepartment.textContent = feedback.department || 'N/A';
-
+  
   const statusText = (feedback.status || 'UNDER_REVIEW').toUpperCase();
   const displayStatus = statusText.replace(/_/g, ' ');
   detailStatus.textContent = displayStatus;
-
+  
   // Sync admin dropdown
   if (adminStatusSelect) {
     adminStatusSelect.value = statusText;
     adminStatusSelect.dataset.feedbackId = feedback.id;
   }
-
+  
   // Format status badge style on sidebar
   if (statusText === 'REJECTED') {
     detailStatus.style.background = 'rgba(239, 68, 68, 0.12)';
@@ -722,7 +722,7 @@ function renderFeedbackDetail(feedback) {
     const bannerDesc = statusBanner.querySelector('p');
     const bannerIcon = statusBanner.querySelector('i');
     const bannerIconBg = statusBanner.querySelector('div');
-
+    
     if (statusText === 'RESOLVED') {
       statusBanner.style.borderLeftColor = '#10b981';
       if (bannerTitle) bannerTitle.textContent = "Complaint Resolved Successfully!";
@@ -781,7 +781,7 @@ function renderFeedbackDetail(feedback) {
   if (feedback.ward) locationParts.push(feedback.ward);
   if (feedback.district) locationParts.push(feedback.district);
   const locationStr = locationParts.length > 0 ? locationParts.join(', ') : 'Not Specified';
-
+  
   if (detailSubtitleAddress) {
     detailSubtitleAddress.innerHTML = `<i class="fa-solid fa-location-dot" style="color: #f43f5e;"></i> ${locationStr}`;
   }
@@ -791,7 +791,7 @@ function renderFeedbackDetail(feedback) {
 
   // Complaint Details Card fields
   detailDescription.textContent = feedback.description || 'No description provided.';
-
+  
   const detailVillageItem = document.getElementById('detail-village-item');
   const detailWardItem = document.getElementById('detail-ward-item');
   const detailDistrictItem = document.getElementById('detail-district-item');
@@ -933,8 +933,8 @@ function renderFeedbackDetail(feedback) {
       const base64 = att.fileData || "";
 
       const fileSource = base64
-        ? `data:${contentType};base64,${base64}`
-        : "";
+          ? `data:${contentType};base64,${base64}`
+          : "";
 
       const isImage = contentType.startsWith("image/");
       const isAudio = contentType.startsWith("audio/");
@@ -1080,8 +1080,9 @@ function renderFeedbackDetail(feedback) {
 
                     </div>
 
-                    ${fileSource
-          ? `
+                    ${
+          fileSource
+              ? `
                         <a
                             href="${fileSource}"
                             download="${fileName}"
@@ -1092,8 +1093,8 @@ function renderFeedbackDetail(feedback) {
 
                         </a>
                         `
-          : ""
-        }
+              : ""
+      }
 
                 </div>
 
@@ -1143,7 +1144,7 @@ function startCountdown(claims) {
   if (!claims || !claims.exp) return;
 
   const expTimeMs = claims.exp * 1000;
-
+  
   function updateTimer() {
     const diff = expTimeMs - Date.now();
     if (diff <= 0) {
@@ -1156,12 +1157,12 @@ function startCountdown(claims) {
       refreshAccessToken(true);
       return;
     }
-
+    
     const minutes = Math.floor(diff / 60000);
     const seconds = Math.floor((diff % 60000) / 1000);
     sessionCountdown.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
-
+  
   updateTimer();
   sessionTimer = setInterval(updateTimer, 1000);
 }
@@ -1183,10 +1184,10 @@ function initiateGoogleOauth() {
   // Using window.location.origin so we return back to port 3000 (Vite)
   const redirectUri = window.location.origin + '/';
   setCookie('frontend_redirect', redirectUri, 3600);
-
+  
   showToast('Redirecting to Google Sign-In...', 'info');
   setLoading(true);
-
+  
   // Redirect browser to backend's oauth client trigger path
   // Using the relative path proxied by Vite to port 8081
   setTimeout(() => {
@@ -1203,33 +1204,33 @@ async function refreshAccessToken(silent = false) {
     const response = await fetch('/api/auth/token', {
       method: 'GET'
     });
-
+    
     if (response.ok) {
       const data = await response.json();
       accessToken = data.accessToken;
-
+      
       const claims = parseJwt(accessToken);
       if (claims) {
         // Update UI status
         switchView('dashboard');
-
+        
         const username = claims.sub || 'Unknown User';
         loggedInUsername = username;
         profileUsername.textContent = username;
         headerUsername.textContent = username;
         profileAvatar.textContent = username.substring(0, 1).toUpperCase();
-
+        
         // Show role and setup admin UI
         const role = getRole(claims);
         profileRole.textContent = role;
-
+        
         const adminElements = document.querySelectorAll('.admin-only');
         if (role === 'ROLE_ADMIN') {
           adminElements.forEach(el => el.style.display = el.tagName === 'A' ? 'flex' : 'block');
         } else {
           adminElements.forEach(el => el.style.display = 'none');
         }
-
+        
         // Check if username is an email address to fill email field and indicate link status
         if (username.includes('@')) {
           infoEmail.textContent = username;
@@ -1240,11 +1241,11 @@ async function refreshAccessToken(silent = false) {
           setLinkStatus('google', false);
           setLinkStatus('youtube', false);
         }
-
+        
         // Update Raw & Decoded JWT view
         jwtRaw.textContent = accessToken;
         jwtDecoded.textContent = JSON.stringify(claims, null, 2);
-
+        
         // Start countdown
         startCountdown(claims);
         checkUnreadMessages();
@@ -1273,12 +1274,12 @@ async function handleRegistration(e) {
   e.preventDefault();
   const username = registerUsernameInput.value.trim();
   const password = registerPasswordInput.value;
-
+  
   if (password.length < 4) {
     showToast('Password is too short. Min. 4 characters.', 'error');
     return;
   }
-
+  
   setLoading(true);
   try {
     const response = await fetch('/api/register', {
@@ -1288,9 +1289,9 @@ async function handleRegistration(e) {
       },
       body: JSON.stringify({ username, password })
     });
-
+    
     const data = await response.json();
-
+    
     if (response.ok || response.status === 201) {
       showToast(data.message || 'Registration complete! You can now log in.', 'success');
       registerForm.reset();
@@ -1313,7 +1314,7 @@ async function handleLogin(e) {
   e.preventDefault();
   const username = loginUsernameInput.value.trim();
   const password = loginPasswordInput.value;
-
+  
   setLoading(true);
   try {
     const response = await fetch('/api/login/usernamepassword', {
@@ -1323,12 +1324,12 @@ async function handleLogin(e) {
       },
       body: JSON.stringify({ username, password })
     });
-
+    
     if (response.ok) {
       const text = await response.text();
       showToast(text || 'Logged in successfully', 'success');
       loginForm.reset();
-
+      
       // Get the access token using the newly set refresh cookie
       await refreshAccessToken(true);
     } else {
@@ -1346,17 +1347,17 @@ async function handleLogin(e) {
 async function handleChangePassword(e) {
   e.preventDefault();
   const newPassword = newPasswordInput.value;
-
+  
   if (newPassword.length < 4) {
     showToast('Password must be at least 4 characters.', 'error');
     return;
   }
-
+  
   if (!accessToken) {
     showToast('No active session. Please log in.', 'error');
     return;
   }
-
+  
   setLoading(true);
   try {
     const response = await fetch('/api/changepassword', {
@@ -1367,7 +1368,7 @@ async function handleChangePassword(e) {
       },
       body: JSON.stringify({ newPassword })
     });
-
+    
     if (response.ok || response.status === 202) {
       const text = await response.text();
       showToast(text || 'Password changed successfully', 'success');
@@ -1390,7 +1391,7 @@ async function handleLogout() {
     const response = await fetch('/api/logout', {
       method: 'POST'
     });
-
+    
     if (response.ok || response.status === 202) {
       showToast('Logged out successfully.', 'success');
     } else {
@@ -1402,10 +1403,10 @@ async function handleLogout() {
   } finally {
     accessToken = null;
     clearInterval(sessionTimer);
-
+    
     // Hide admin UI
     document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-
+    
     switchView('auth');
     jwtRaw.textContent = 'No JWT available. Log in to retrieve a token.';
     jwtDecoded.textContent = JSON.stringify({ status: 'Logged Out' }, null, 2);
@@ -1417,7 +1418,7 @@ async function handleLogout() {
 function setLinkStatus(provider, linked) {
   const el = document.getElementById(`link-status-${provider}`);
   if (!el) return;
-
+  
   if (linked) {
     el.className = 'status-indicator status-active';
     el.innerHTML = '<span class="status-dot"></span>Connected';
@@ -1469,7 +1470,7 @@ function initLocationDropdowns() {
 function handleStateChange() {
   const selectedState = stateSelect.value;
   districtSelect.innerHTML = '<option value="">Select District</option>';
-
+  
   if (!selectedState) return;
 
   const stateData = indianStatesAndDistricts.find(item => item.state === selectedState);
@@ -1500,10 +1501,10 @@ async function lookupPincode() {
       const postOffices = data[0].PostOffice;
       if (postOffices && postOffices.length > 0) {
         const sample = postOffices[0];
-
+        
         // Match state name
         let matchedState = "";
-        const found = indianStatesAndDistricts.find(s =>
+        const found = indianStatesAndDistricts.find(s => 
           s.state.toLowerCase().replace(/[^a-z]/g, '') === sample.State.toLowerCase().replace(/[^a-z]/g, '')
         );
         if (found) {
@@ -1520,14 +1521,14 @@ async function lookupPincode() {
         let matchedDistrict = "";
         const stateData = indianStatesAndDistricts.find(s => s.state === matchedState);
         if (stateData) {
-          const dFound = stateData.districts.find(d =>
+          const dFound = stateData.districts.find(d => 
             d.toLowerCase().replace(/[^a-z]/g, '') === sample.District.toLowerCase().replace(/[^a-z]/g, '')
           );
           if (dFound) {
             matchedDistrict = dFound;
           }
         }
-
+        
         if (!matchedDistrict) {
           matchedDistrict = sample.District;
           const opt = document.createElement('option');
@@ -1535,7 +1536,7 @@ async function lookupPincode() {
           opt.textContent = matchedDistrict;
           districtSelect.appendChild(opt);
         }
-
+        
         districtSelect.value = matchedDistrict;
 
         // Populate Village select with Post Office names
@@ -1580,21 +1581,21 @@ function detectUserLocation() {
     async (position) => {
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
-
+      
       try {
         showToast('Resolving coordinates to address details...', 'info');
         const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`);
         if (!response.ok) throw new Error('OSM Reverse Geocode API returned error status.');
-
+        
         const data = await response.json();
         if (data && data.address) {
           const addr = data.address;
-
+          
           // 1. Resolve State
           let resolvedState = addr.state || "";
           let matchedState = "";
           if (resolvedState) {
-            const found = indianStatesAndDistricts.find(s =>
+            const found = indianStatesAndDistricts.find(s => 
               s.state.toLowerCase().replace(/[^a-z]/g, '') === resolvedState.toLowerCase().replace(/[^a-z]/g, '')
             );
             if (found) {
@@ -1612,7 +1613,7 @@ function detectUserLocation() {
           if (resolvedDistrict && matchedState) {
             const stateData = indianStatesAndDistricts.find(s => s.state === matchedState);
             if (stateData) {
-              const dFound = stateData.districts.find(d =>
+              const dFound = stateData.districts.find(d => 
                 d.toLowerCase().replace(/[^a-z]/g, '') === resolvedDistrict.toLowerCase().replace(/[^a-z]/g, '')
               );
               if (dFound) {
@@ -1687,7 +1688,7 @@ async function startVoiceRecording() {
   audioChunks = [];
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
+    
     let options = { mimeType: 'audio/webm' };
     if (!MediaRecorder.isTypeSupported('audio/webm')) {
       options = { mimeType: 'audio/ogg' };
@@ -1721,7 +1722,7 @@ async function startVoiceRecording() {
     btnRecordStart.disabled = true;
     btnRecordStop.disabled = false;
     recordingTimer.style.display = 'inline-block';
-
+    
     clearInterval(voiceRecordTimerInterval);
     voiceRecordTimerInterval = setInterval(() => {
       const elapsedMs = Date.now() - voiceRecordStartTime;
@@ -1740,7 +1741,7 @@ async function startVoiceRecording() {
 
 function stopVoiceRecording() {
   if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
-
+  
   mediaRecorder.stop();
   mediaRecorder.stream.getTracks().forEach(track => track.stop());
 
@@ -1861,7 +1862,7 @@ async function handleFeedbackSubmit(e) {
   }
 
   setLoading(true);
-
+  
   try {
     const formData = new FormData();
     formData.append('title', title);
@@ -1892,16 +1893,16 @@ async function handleFeedbackSubmit(e) {
     if (response.ok) {
       showToast('Feedback submitted successfully!', 'success');
       feedbackForm.reset();
-
+      
       selectedImages = [];
       selectedFiles = [];
       recordedVoiceFile = null;
       voiceAudioElement.src = '';
       voicePreviewContainer.style.display = 'none';
-
+      
       districtSelect.innerHTML = '<option value="">Select District</option>';
       villageSelect.innerHTML = '<option value="">Select Village/Locality</option>';
-
+      
       villageText.style.display = 'none';
       villageSelect.style.display = 'block';
       wardText.style.display = 'none';
@@ -1926,9 +1927,9 @@ async function handleFeedbackSubmit(e) {
 async function fetchUserFeedbacks(page = 0) {
   if (!userFeedbacksList || !accessToken) return;
   currentUserFeedbacksPage = page;
-
+  
   userFeedbacksList.innerHTML = '<span style="font-size: 0.9rem; color: var(--text-muted);">Loading your submissions...</span>';
-
+  
   try {
     const response = await fetch(`/feedback/u?page=${page}&size=10`, {
       method: 'GET',
@@ -1936,11 +1937,11 @@ async function fetchUserFeedbacks(page = 0) {
         'Authorization': `Bearer ${accessToken}`
       }
     });
-
+    
     if (response.ok) {
       const data = await response.json();
       renderUserFeedbacks(data.content || []);
-
+      
       const totalPages = data.totalPages || 1;
       if (userFeedbacksPagination) {
         if (totalPages > 1) {
@@ -1964,22 +1965,22 @@ async function fetchUserFeedbacks(page = 0) {
 function renderUserFeedbacks(feedbacks) {
   if (!userFeedbacksList) return;
   userFeedbacksList.innerHTML = '';
-
+  
   if (feedbacks.length === 0) {
     userFeedbacksList.innerHTML = '<span style="font-size: 0.9rem; color: var(--text-muted);">You have not submitted any feedback yet.</span>';
     return;
   }
-
+  
   feedbacks.forEach(item => {
     const card = document.createElement('div');
     card.className = 'user-feedback-card';
     card.dataset.id = item.id;
-
+    
     const title = item.title || 'Untitled';
     const category = item.category || 'OTHER';
     const status = (item.status || 'UNDER_REVIEW').replace(/_/g, ' ');
     const votes = item.upVote || 0;
-
+    
     let statusColor = '#fbbf24';
     let statusBg = 'rgba(245, 158, 11, 0.1)';
     if (item.status === 'RESOLVED') {
@@ -1989,7 +1990,7 @@ function renderUserFeedbacks(feedbacks) {
       statusColor = '#ef4444';
       statusBg = 'rgba(239, 68, 68, 0.1)';
     }
-
+    
     card.innerHTML = `
       <div class="user-feedback-info">
         <span class="user-feedback-title" title="${title}">${title}</span>
@@ -2002,32 +2003,32 @@ function renderUserFeedbacks(feedbacks) {
       </div>
       <i class="fa-solid fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
     `;
-
+    
     card.addEventListener('click', () => {
       lastSearchView = 'profile';
       openFeedbackDetail(item.id);
     });
-
+    
     userFeedbacksList.appendChild(card);
   });
 }
 
 async function fetchComments(feedbackId, page = 0) {
   currentCommentsPage = page;
-
+  
   try {
     const response = await fetch(`/comments?feedbackId=${feedbackId}&page=${page}&size=20`);
     if (response.ok) {
       const data = await response.json();
       const comments = data.content || [];
       const totalPages = data.totalPages || 1;
-
+      
       const userComments = comments.filter(c => c.commentSection !== 'GOVERNMENT');
       const govComments = comments.filter(c => c.commentSection === 'GOVERNMENT');
-
+      
       renderCommentsToList(userComments, userCommentsList, 'No citizen comments yet. Be the first to share your thoughts!');
       renderCommentsToList(govComments, govCommentsList, 'No government responses yet.');
-
+      
       if (commentsPagination) {
         if (totalPages > 1) {
           commentsPagination.style.display = 'flex';
@@ -2050,13 +2051,13 @@ async function fetchComments(feedbackId, page = 0) {
 function createCommentCard(comment) {
   const item = document.createElement('div');
   item.className = 'comment-item';
-
+  
   const author = comment.createdByUser || 'User';
   const text = comment.text || '';
   const firstLetter = author.substring(0, 1).toUpperCase();
   const isOwner = accessToken && loggedInUsername && author === loggedInUsername;
   const isGov = comment.commentSection === 'GOVERNMENT';
-
+  
   let commentTimeStr = 'Just now';
   if (comment.createdAt) {
     try {
@@ -2066,17 +2067,17 @@ function createCommentCard(comment) {
       else if (diff < 60) commentTimeStr = `${diff}m ago`;
       else if (diff < 1440) commentTimeStr = `${Math.floor(diff / 60)}h ago`;
       else commentTimeStr = `${Math.floor(diff / 1440)}d ago`;
-    } catch (_) { }
+    } catch (_) {}
   } else if (comment.id) {
     const hash = comment.id.split('-').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const minutesAgo = (hash % 120) + 5;
     commentTimeStr = `${minutesAgo}m ago`;
   }
-
+  
   const avatarBg = isGov ? 'rgba(251,191,36,0.12)' : '';
   const avatarColor = isGov ? '#fbbf24' : '';
   const authorSuffix = isGov ? ' <span style="font-size:0.7rem;background:rgba(251,191,36,0.12);color:#fbbf24;padding:0.1rem 0.4rem;border-radius:4px;font-weight:600;">OFFICIAL</span>' : '';
-
+  
   item.innerHTML = `
     <div class="comment-avatar" ${avatarBg ? `style="background:${avatarBg};color:${avatarColor};"` : ''}>${firstLetter}</div>
     <div class="comment-content">
@@ -2486,7 +2487,7 @@ function initSearch() {
   searchInput.addEventListener('input', () => {
     const query = searchInput.value.trim();
     clearTimeout(searchDebounceTimer);
-
+    
     if (query.length < 2) {
       hideSuggestions();
       return;
@@ -2660,7 +2661,7 @@ function renderNavbarSuggestions(query, results) {
 async function fetchSearchSuggestions(query) {
   try {
     const response = await fetch(`/feedback/title?title=${encodeURIComponent(query)}&size=5&sort=upVote,desc`);
-
+    
     if (response.ok) {
       const data = await response.json();
       renderSuggestions(query, data.content || []);
@@ -2797,12 +2798,12 @@ function navigateSuggestions(direction) {
 // Execute full search (shown in search results view)
 async function executeFullSearch(query, page = 0) {
   if (!searchResultsList) return;
-
+  
   setLoading(true);
-
+  
   try {
     const response = await fetch(`/feedback/title?title=${encodeURIComponent(query)}&page=${page}&size=8&sort=upVote,desc`);
-
+    
     if (response.ok) {
       const data = await response.json();
       const results = data.content || [];
@@ -2929,18 +2930,18 @@ let currentAdminPage = 0;
 async function fetchAdminFeedbacks(page = 0) {
   if (!adminFeedbackList || !accessToken) return;
   adminFeedbackList.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Loading feedbacks...</span>';
-
+  
   try {
     const response = await fetch(`/feedback/Allfeedback?page=${page}&size=10&sort=createdAt,desc`, {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
-
+    
     if (response.ok) {
       const data = await response.json();
       const items = data.content || [];
       adminFeedbackList.innerHTML = '';
-
+      
       if (items.length === 0) {
         adminFeedbackList.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">No feedbacks found.</span>';
       } else {
@@ -2950,10 +2951,10 @@ async function fetchAdminFeedbacks(page = 0) {
           let statusBg = 'rgba(245, 158, 11, 0.1)';
           if (status === 'RESOLVED') { statusColor = '#10b981'; statusBg = 'rgba(16, 185, 129, 0.1)'; }
           else if (status === 'REJECTED') { statusColor = '#ef4444'; statusBg = 'rgba(239, 68, 68, 0.1)'; }
-
+          
           const el = document.createElement('div');
           el.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:1rem;border:1px solid var(--card-border);border-radius:10px;background:rgba(255,255,255,0.02);gap:1rem;flex-wrap:wrap;';
-
+          
           el.innerHTML = `
             <div style="flex:1;min-width:250px;cursor:pointer;" onclick="openFeedbackDetail('${item.id}')">
               <div style="font-weight:700;color:var(--text-primary);font-size:1rem;margin-bottom:0.25rem;">${item.title || 'Untitled'}</div>
@@ -2973,7 +2974,7 @@ async function fetchAdminFeedbacks(page = 0) {
           `;
           adminFeedbackList.appendChild(el);
         });
-
+        
         // Setup dropdown listeners
         document.querySelectorAll('.admin-list-status-select').forEach(select => {
           select.addEventListener('change', (e) => {
@@ -2981,14 +2982,14 @@ async function fetchAdminFeedbacks(page = 0) {
           });
         });
       }
-
+      
       // Update pagination
       const paginationEl = document.getElementById('admin-feedback-pagination');
       if (paginationEl) {
         paginationEl.style.display = 'flex';
         document.getElementById('admin-page-info').textContent = `Page ${data.pageable?.pageNumber + 1 || 1} of ${data.totalPages || 1}`;
         currentAdminPage = data.pageable?.pageNumber || 0;
-
+        
         const btnPrev = document.getElementById('btn-admin-prev');
         const btnNext = document.getElementById('btn-admin-next');
         btnPrev.onclick = () => { if (!data.first) fetchAdminFeedbacks(currentAdminPage - 1); };
@@ -3017,7 +3018,7 @@ async function updateFeedbackStatus(id, newStatus) {
       // Using a wrapper object structure which Spring parses if correctly configured
       body: JSON.stringify({ id: id, status: newStatus })
     });
-
+    
     if (response.ok) {
       showToast('Status updated successfully.', 'success');
       // Refresh context based on current view
@@ -3051,15 +3052,15 @@ if (adminCreateForm) {
   adminCreateForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!accessToken) return;
-
+    
     const username = document.getElementById('admin-create-username').value.trim();
     const password = document.getElementById('admin-create-password').value;
-
+    
     if (password.length < 8) {
       showToast('Password must be at least 8 characters.', 'error');
       return;
     }
-
+    
     setLoading(true);
     try {
       const response = await fetch('/admin/create', {
@@ -3070,7 +3071,7 @@ if (adminCreateForm) {
         },
         body: JSON.stringify({ username, password })
       });
-
+      
       if (response.ok || response.status === 201) {
         showToast(`Admin account '${username}' created successfully.`, 'success');
         adminCreateForm.reset();
@@ -3096,26 +3097,26 @@ async function fetchAdmins(page = 0, query = '') {
   const adminUsersPageInfo = document.getElementById('admin-users-page-info');
   const btnAdminUsersPrev = document.getElementById('btn-admin-users-prev');
   const btnAdminUsersNext = document.getElementById('btn-admin-users-next');
-
+  
   if (!adminUsersList || !accessToken) return;
   adminUsersList.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Loading admin directory...</span>';
-
+  
   try {
     const url = `/admin/all?username=${encodeURIComponent(query)}&page=${page}&size=10`;
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
-
+    
     if (response.ok) {
       const data = await response.json();
       const items = data.content || [];
       const totalPages = data.totalPages || 1;
-
+      
       adminUsersList.innerHTML = '';
       currentAdminsPage = page;
       currentAdminsSearchQuery = query;
-
+      
       if (items.length === 0) {
         adminUsersList.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">No admin accounts found.</span>';
         if (adminUsersPagination) adminUsersPagination.style.display = 'none';
@@ -3136,7 +3137,7 @@ async function fetchAdmins(page = 0, query = '') {
           `;
           adminUsersList.appendChild(el);
         });
-
+        
         // Setup delete button click listeners
         adminUsersList.querySelectorAll('.btn-delete-admin').forEach(btn => {
           btn.addEventListener('click', (e) => {
@@ -3145,13 +3146,13 @@ async function fetchAdmins(page = 0, query = '') {
             deleteAdmin(adminId, adminUsername);
           });
         });
-
+        
         // Setup pagination
         if (adminUsersPagination) {
           if (totalPages > 1) {
             adminUsersPagination.style.display = 'flex';
             if (adminUsersPageInfo) adminUsersPageInfo.textContent = `Page ${page + 1} of ${totalPages}`;
-
+            
             btnAdminUsersPrev.onclick = () => { if (page > 0) fetchAdmins(page - 1, query); };
             btnAdminUsersNext.onclick = () => { if (page < totalPages - 1) fetchAdmins(page + 1, query); };
             btnAdminUsersPrev.disabled = page === 0;
@@ -3171,10 +3172,10 @@ async function fetchAdmins(page = 0, query = '') {
 
 async function deleteAdmin(id, username) {
   if (!id || !accessToken) return;
-
+  
   const confirmDelete = confirm(`Are you sure you want to delete admin account '${username}'?`);
   if (!confirmDelete) return;
-
+  
   setLoading(true);
   try {
     const response = await fetch(`/admin/delete?id=${id}`, {
@@ -3183,7 +3184,7 @@ async function deleteAdmin(id, username) {
         'Authorization': `Bearer ${accessToken}`
       }
     });
-
+    
     if (response.ok) {
       showToast(`Admin account '${username}' deleted successfully.`, 'success');
       // Refresh list
@@ -3213,9 +3214,9 @@ async function deleteAdmin(id, username) {
 function initAdminSearch() {
   const adminSearchInput = document.getElementById('admin-search-input');
   const btnAdminSearch = document.getElementById('btn-admin-search');
-
+  
   if (!adminSearchInput) return;
-
+  
   adminSearchInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -3223,7 +3224,7 @@ function initAdminSearch() {
       fetchAdmins(0, query);
     }
   });
-
+  
   if (btnAdminSearch) {
     btnAdminSearch.addEventListener('click', () => {
       const query = adminSearchInput.value.trim();
@@ -3287,23 +3288,23 @@ async function fetchMessages(page = 0) {
   const messagesList = document.getElementById('messages-list');
   const messagesPagination = document.getElementById('messages-pagination');
   if (!messagesList || !accessToken) return;
-
+  
   currentMessagesPage = page;
-  messagesList.innerHTML = [1, 2, 3].map(() => `<div class="msg-item msg-skeleton"><div class="msg-skeleton-line" style="width:60%;height:12px;margin-bottom:6px;border-radius:4px;"></div><div class="msg-skeleton-line" style="width:90%;height:10px;border-radius:4px;"></div></div>`).join('');
-
+  messagesList.innerHTML = [1,2,3].map(() => `<div class="msg-item msg-skeleton"><div class="msg-skeleton-line" style="width:60%;height:12px;margin-bottom:6px;border-radius:4px;"></div><div class="msg-skeleton-line" style="width:90%;height:10px;border-radius:4px;"></div></div>`).join('');
+  
   try {
     const response = await fetch(`/messages/all?page=${page}&size=15&sort=createdAt,desc`, {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
-
+    
     if (response.ok) {
       const data = await response.json();
       const messages = data.content || [];
       const totalPages = data.totalPages || 1;
-
+      
       messagesList.innerHTML = '';
-
+      
       if (messages.length === 0) {
         messagesList.innerHTML = '<div style="text-align:center;padding:2rem 0;"><i class="fa-regular fa-envelope-open" style="font-size:2rem;color:var(--text-muted);margin-bottom:0.75rem;display:block;"></i><span style="font-size:0.9rem;color:var(--text-muted);">No messages yet.</span></div>';
       } else {
@@ -3317,7 +3318,7 @@ async function fetchMessages(page = 0) {
             try {
               const d = new Date(msg.createdAt);
               dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            } catch (_) { }
+            } catch(_) {}
           }
 
           el.innerHTML = `
@@ -3337,7 +3338,7 @@ async function fetchMessages(page = 0) {
           messagesList.appendChild(el);
         });
       }
-
+      
       // Pagination
       if (messagesPagination) {
         const pageInfo = document.getElementById('messages-page-info');
@@ -3389,7 +3390,7 @@ async function openMessageDetail(messageId) {
         try {
           const d = new Date(msg.createdAt);
           dateEl.textContent = d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        } catch (_) { dateEl.textContent = ''; }
+        } catch(_) { dateEl.textContent = ''; }
       }
       if (bodyEl) bodyEl.textContent = msg.body || msg.text || 'No content.';
 
